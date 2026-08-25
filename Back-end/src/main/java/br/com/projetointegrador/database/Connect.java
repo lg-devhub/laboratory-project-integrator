@@ -1,22 +1,26 @@
 package br.com.projetointegrador.database;
 
+import io.github.cdimascio.dotenv.Dotenv;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class Connect {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/laboratory";
-    private static final String USUARIO = "root";
-    private static final String SENHA = "";
+    private static final Dotenv dotenv = Dotenv.load();
+
+    private static final String URL = dotenv.get("DB_URL");
+    private static final String USER = dotenv.get("DB_USER");
+    private static final String PASSWORD = dotenv.get("DB_PASSWORD");
 
     public static Connection conexao() {
 
         try {
             Connection connection = DriverManager.getConnection(
                     URL,
-                    USUARIO,
-                    SENHA
+                    USER,
+                    PASSWORD
             );
 
             System.out.println("Conexão com o banco realizada com sucesso!");
@@ -44,4 +48,4 @@ public class Connect {
             }
         }
     }
-}   
+}
