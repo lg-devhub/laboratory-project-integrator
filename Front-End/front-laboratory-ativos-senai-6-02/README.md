@@ -1,4 +1,4 @@
-# Front-end
+# front-laboratory-ativos-senai-6-02
 
 This template should help get you started developing with Vue 3 in Vite.
 
@@ -39,10 +39,4 @@ npm run dev
 
 ```sh
 npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
 ```
