@@ -10,17 +10,17 @@ public class Connect {
 
     private static final Dotenv dotenv = Dotenv.load();
 
-    private static final String URL = dotenv.get("DB_URL");
-    private static final String USER = dotenv.get("DB_USER");
-    private static final String PASSWORD = dotenv.get("DB_PASSWORD");
+    private static final String URL = dotenv.get("DB_URL", "jdbc:postgresql://localhost:5432/laboratory");
+    private static final String USUARIO = dotenv.get("DB_USER", "postgres");
+    private static final String SENHA = dotenv.get("DB_PASSWORD", "postgres");
 
     public static Connection conexao() {
 
         try {
             Connection connection = DriverManager.getConnection(
                     URL,
-                    USER,
-                    PASSWORD
+                    USUARIO,
+                    SENHA
             );
 
             System.out.println("Conexão com o banco realizada com sucesso!");

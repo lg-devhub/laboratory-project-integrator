@@ -19,11 +19,11 @@
 
     <dependencies>
 
-        <!-- PostgreSQL JDBC -->
+        <!-- PostgreSQL JDBC Driver -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.7.7</version>
+            <version>42.7.3</version>
         </dependency>
 
         <!-- Leitura do arquivo .env -->
@@ -33,11 +33,20 @@
             <version>3.2.0</version>
         </dependency>
 
+        <!-- BCrypt para Hash de Senha -->
         <dependency>
             <groupId>org.mindrot</groupId>
             <artifactId>jbcrypt</artifactId>
             <version>0.4</version>
         </dependency>
+
+        <!-- Processamento de JSON -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.17.1</version>
+        </dependency>
+
     </dependencies>
 
 </project>

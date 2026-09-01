@@ -1,45 +1,27 @@
 package br.com.projetointegrador;
 
 import br.com.projetointegrador.database.Connect;
+import br.com.projetointegrador.server.Server;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 
 public class Main {
 
     public static void main(String[] args) {
-
         Connection connection = Connect.conexao();
 
         if (connection == null) {
-            System.out.println("Erro na conexão.");
+            System.err.println("Falha ao conectar ao banco de dados PostgreSQL. O servidor não será iniciado.");
             return;
         }
 
-        String sql = "SELECT id, name, email FROM users";
+        Connect.close(connection);
 
-        try (PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet result = statement.executeQuery()) {
-
-            while (result.next()) {
-
-                int id = result.getInt("id");
-                String name = result.getString("name");
-                String email = result.getString("email");
-
-                System.out.println(
-                    "ID: " + id +
-                    " | Nome: " + name +
-                    " | Email: " + email
-                );
-            }
-
+        try {
+            Server.startServer();
         } catch (Exception e) {
+            System.err.println("Erro ao iniciar o servidor HTTP:");
             e.printStackTrace();
-
-        } finally {
-            Connect.close(connection);
         }
     }
 }
