@@ -58,7 +58,7 @@ O sistema será desenvolvido utilizando:
 ### Estrutura geral
 
 <p align="center">
-  <img src="./project-miniMap.png" alt="Estrutura do projeto Front-end e Back-end" width="1000">
+  <img src="/project-miniMap.png" alt="Estrutura do projeto Front-end e Back-end" width="1000">
 </p>
 
 ---
@@ -68,7 +68,7 @@ O sistema será desenvolvido utilizando:
 A estrutura inicial do banco de dados foi planejada para organizar os principais elementos envolvidos na gestão dos laboratórios, ativos e ordens de serviço.
 
 <p align="center">
-  <img src="./miniMap-DB.png" alt="Estrutura do banco de dados" width="1000">
+  <img src="/miniMap-DB.png" alt="Estrutura do banco de dados" width="1000">
 </p>
 
 > A estrutura poderá ser alterada durante o desenvolvimento conforme os requisitos e regras de negócio forem definidos.
