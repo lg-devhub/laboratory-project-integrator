@@ -2,7 +2,6 @@ package br.com.projetointegrador.dao;
 
 import br.com.projetointegrador.database.Connect;
 import br.com.projetointegrador.model.Model_User;
-import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,7 +11,6 @@ public class DAO_User {
 
     public void insert(Model_User user) {
         String sql = "INSERT INTO \"User\" (name, email, password) VALUES (?, ?, ?)";
-        String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
 
         try (
             Connection conexao = Connect.conexao();
@@ -20,7 +18,7 @@ public class DAO_User {
         ) {
             stmt.setString(1, user.getName());
             stmt.setString(2, user.getEmail());
-            stmt.setString(3, hashedPassword);
+            stmt.setString(3, user.getPassword());
 
             stmt.executeUpdate();
 
@@ -32,7 +30,6 @@ public class DAO_User {
         }
     }
 
-    // Select pelo email (Ajustada sintaxe PostgreSQL)
     public Model_User selectByEmail(String email) {
         String sql = "SELECT id, name, email, password FROM \"User\" WHERE email = ?";
 
@@ -59,10 +56,9 @@ public class DAO_User {
         return null;
     }
 
-    // Método Agregado: Autenticação comparando senha comum enviada com o Hash BCrypt do banco
     public Model_User authenticate(String email, String plainPassword) {
         Model_User user = selectByEmail(email);
-        if (user != null && BCrypt.checkpw(plainPassword, user.getPassword())) {
+        if (user != null && user.getPassword() != null && user.getPassword().equals(plainPassword)) {
             return user;
         }
         return null;
