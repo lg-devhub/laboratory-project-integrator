@@ -10,7 +10,7 @@ import java.sql.ResultSet;
 public class DAO_User {
 
     public void insert(Model_User user) {
-        String sql = "INSERT INTO \"User\" (name, email, password) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO \"users\" (name, email, password) VALUES (?, ?, ?)";
 
         try (
             Connection conexao = Connect.conexao();
@@ -31,7 +31,7 @@ public class DAO_User {
     }
 
     public Model_User selectByEmail(String email) {
-        String sql = "SELECT id, name, email, password FROM \"User\" WHERE email = ?";
+        String sql = "SELECT id, name, email, password FROM \"users\" WHERE email = ?";
 
         try (
             Connection conexao = Connect.conexao();
