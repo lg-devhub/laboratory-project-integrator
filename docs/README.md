@@ -58,7 +58,7 @@ O sistema será desenvolvido utilizando:
 ### Estrutura geral
 
 <p align="center">
-  <img src="./project-miniMap.png" alt="Estrutura do projeto Front-end e Back-end" width="1000">
+  <img src="./minimap.png" alt="Estrutura do projeto Front-end e Back-end" width="1000">
 </p>
 
 ---
