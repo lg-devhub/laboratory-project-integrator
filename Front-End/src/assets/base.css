@@ -1,0 +1,45 @@
+/* Reset global mínimo.
+   O motivo da margem nas laterais: o projeto não tinha nenhum reset de
+   CSS. O <body> do navegador tem margin: 8px por padrão, e isso sobra
+   em volta de qualquer tela com min-height: 100vh (Login e Hub, por
+   exemplo). Zerando aqui resolve nas duas telas de uma vez. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  font-family: 'Manrope', system-ui, sans-serif;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+/* A fonte Manrope já era usada no Header/Card, mas não havia nenhum
+   @import carregando ela — estava caindo no fallback do navegador. */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+/* Tokens de cor únicos para o app inteiro, com os mesmos nomes que já
+   apareciam localmente no Header.vue e no Card.vue. Definir aqui não
+   quebra nada: os componentes que já redeclaram --bg etc. localmente
+   continuam funcionando normalmente (a declaração local tem prioridade),
+   e os componentes novos podem usar essas variáveis sem repeti-las. */
+:root {
+  --bg: #2b2d42;
+  --bg-alt: #8d99ae;
+  --accent: #ef233c;
+  --surface: #edf2f4;
+  --ok: #2d9d6f;
+  --text: #111827;
+  --text-muted: #6b7280;
+}
