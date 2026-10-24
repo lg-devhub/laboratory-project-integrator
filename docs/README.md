@@ -1,119 +1,17 @@
-# 🧪 Sistema de Gestão de Laboratórios e Ativos
+# Documentação do STOCKA
 
-> Sistema web desenvolvido para facilitar o gerenciamento de laboratórios, equipamentos, ativos e ordens de serviço.
+| Guia | Conteúdo |
+|---|---|
+| [Frontend](frontend.md) | Pastas Vue, rotas, store, serviços e execução. |
+| [Backend](backend.md) | Conexão, arquivos Java, autenticação, sessão, API, testes e futura hospedagem no Supabase. |
+| [Banco local](banco-local.md) | Docker, execução, dados fictícios e arquivos SQL. |
+| [Modelo do banco](modelo-banco.md) | Campos, PKs, FKs, convenções técnicas e limites do incremento. |
+| [pgAdmin](pgadmin.md) | Interface visual para consultar o banco e explicação dos contêineres. |
 
----
+Os guias descrevem a versão atual do projeto. O código antigo, os diagramas do
+protótipo e os guias substituídos foram preservados em um histórico externo à
+pasta de desenvolvimento para não serem confundidos com a implementação atual.
 
-## 📋 Sobre o Projeto
-
-Este projeto é desenvolvido como parte do **Projeto Integrador da Faculdade de Gestão de Laboratórios e Ativos**.
-
-A organização atualmente realiza o controle de equipamentos e ordens de serviço por meio de registros físicos e processos manuais, o que pode ocasionar perda de informações, inconsistências, retrabalho e dificuldade na rastreabilidade dos ativos.
-
-A proposta é desenvolver uma plataforma web capaz de **centralizar, organizar e facilitar o gerenciamento dos ativos e das ordens de serviço**.
-
----
-
-## 🎯 Objetivos
-
-### Objetivo Geral
-
-Desenvolver um sistema web para gerenciamento de laboratórios, equipamentos, ativos e ordens de serviço, proporcionando maior organização, rastreabilidade e eficiência.
-
-### Objetivos Específicos
-
-- 📦 Cadastrar e gerenciar equipamentos;
-- 🗂️ Organizar equipamentos por categorias e tipos;
-- 📍 Controlar a localização dos ativos;
-- 🔧 Registrar e acompanhar ordens de serviço;
-- 🛠️ Controlar manutenções;
-- 📋 Manter histórico dos equipamentos;
-- 👥 Gerenciar usuários e responsáveis;
-- 🔎 Facilitar a consulta das informações;
-- 📊 Centralizar os dados;
-- 💰 Reduzir custos e retrabalho.
-
----
-
-## 💡 Benefícios Esperados
-
-- Redução de inconsistências e falhas nos registros;
-- Maior agilidade no acesso às informações;
-- Melhor organização e localização dos ativos;
-- Diminuição do retrabalho;
-- Centralização dos dados;
-- Melhoria na tomada de decisões;
-- Redução de custos operacionais.
-
----
-
-# 🏗️ Arquitetura do Projeto
-
-O sistema será desenvolvido utilizando:
-
-- **Front-end:** Vue.js
-- **Back-end:** Java + Spring Boot
-- **Banco de Dados:** MySQL
-
-### Estrutura geral
-
-<p align="center">
-  <img src="./minimap.png" alt="Estrutura do projeto Front-end e Back-end" width="1000">
-</p>
-
----
-
-# 🗄️ Estrutura do Banco de Dados
-
-A estrutura inicial do banco de dados foi planejada para organizar os principais elementos envolvidos na gestão dos laboratórios, ativos e ordens de serviço.
-
-<p align="center">
-  <img src="./miniMap-DB.png" alt="Estrutura do banco de dados" width="1000">
-</p>
-
-> A estrutura poderá ser alterada durante o desenvolvimento conforme os requisitos e regras de negócio forem definidos.
-
----
-
-# 📦 Principais Módulos
-
-```text
-Sistema
-│
-├── 🔐 Autenticação
-│
-├── 📊 Dashboard
-│
-├── 🧰 Ativos
-│   ├── Cadastro
-│   ├── Consulta
-│   ├── Edição
-│   ├── Exclusão
-│   ├── Localização
-│   └── Histórico
-│
-├── 🏢 Laboratórios
-│   ├── Cadastro
-│   ├── Consulta
-│   └── Equipamentos
-│
-├── 🗂️ Categorias
-│   ├── Categorias
-│   └── Tipos de equipamento
-│
-├── 🔧 Ordens de Serviço
-│   ├── Abertura
-│   ├── Consulta
-│   ├── Atualização
-│   ├── Status
-│   └── Histórico
-│
-├── 👥 Usuários
-│   ├── Cadastro
-│   ├── Perfis
-│   └── Permissões
-│
-└── 📈 Relatórios
-    ├── Ativos
-    ├── Manutenções
-    └── Ordens de Serviço
+A ERS revisada continua sendo a referência de requisitos. Sua versão aprovada
+pelo grupo ainda precisa ser incluída no repositório. Os guias técnicos não
+substituem a ERS; escolhas de implementação devem ser distinguidas dos requisitos.

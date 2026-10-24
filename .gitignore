@@ -1,0 +1,14 @@
+# Credenciais e configuração local
+.env
+.env.*
+!.env.example
+
+# Arquivos gerados
+node_modules/
+dist/
+target/
+coverage/
+*.log
+*.tsbuildinfo
+Thumbs.db
+.DS_Store
