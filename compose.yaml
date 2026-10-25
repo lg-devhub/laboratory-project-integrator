@@ -17,6 +17,8 @@ services:
       - ./database/migrations/V002__cor_ambiente.sql:/docker-entrypoint-initdb.d/03_cor.sql:ro
       - ./database/migrations/V003__inventario.sql:/docker-entrypoint-initdb.d/04_inventario.sql:ro
       - ./database/migrations/V004__edicao_auditoria_itens.sql:/docker-entrypoint-initdb.d/05_edicao.sql:ro
+      - ./database/migrations/V005__abertura_ordens_servico.sql:/docker-entrypoint-initdb.d/06_ordens_servico.sql:ro
+      - ./database/migrations/V006__andamento_encerramento_os.sql:/docker-entrypoint-initdb.d/07_encerramento_os.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U stocka -d stocka"]
       interval: 3s

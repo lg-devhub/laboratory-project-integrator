@@ -38,6 +38,8 @@ nova definição do grupo. O ERS não define uma árvore de salas dentro de seto
 - Consultar detalhes, foto e histórico de alterações sob a mesma regra de acesso.
 - Editar campos e status com auditoria atômica e detecção de edição concorrente.
 - Alterar a própria senha pelo hub, conforme RF03/RN06, para ambos os perfis.
+- Abrir, consultar, atualizar e concluir OS de equipamentos individuais conforme RF28–RF30.
+  Consulte [Ordens de serviço](ordens-servico.md); concluídas ficam somente para consulta.
 - Preservar identidade e vínculos nesta edição comum; é uma decisão técnica de escopo,
   não uma proibição adicional da empresa. Veja [Edição e demonstração](edicao-e-demonstracao.md).
 
@@ -50,7 +52,6 @@ O nome do arquivo ERS é a versão da entrega documental, não um backlog que j�
 |---|---|---|
 | Cadastro manual de vários registros | RF24 | Diferente de informar quantidade em um único registro (RF25); definir validação e resultado do conjunto. |
 | Gerenciar contas | RF02/RF04/RF07, RN06/RN14 | Login e alteração da própria senha estão disponíveis; faltam as telas de gestão, preservação de autoria e proteção do último administrador. |
-| Ordens de serviço | RF28–RF30, RN11/RN12 | Somente equipamentos individuais; ciclo e encerramento conforme ERS, sem alterar automaticamente o status do equipamento. |
 | Manutenções | RF31/RF32/RN13 | Data, serviço, técnico, autor automático e vínculo opcional com OS. |
 | Movimentação | RF33/RN16/RN17 | Administrador altera ambiente atual, define responsável após a operação e registra origem/destino/data/autor; preserva patrimônio, OS e históricos. Não é importar ou duplicar item. |
 | Exclusão lógica de itens | RF20/RN15 | Preservar histórico e patrimônio; bloquear equipamentos com OS aberta/em andamento e permitir consulta administrativa dos excluídos. |
@@ -72,6 +73,9 @@ antes de iniciar cada etapa. Não apresentar ações ainda indisponíveis como f
 - Paleta de cores dos ambientes é melhoria visual aprovada, sem significado de status.
 
 ## Pendências documentais
+
+- Alinhar o passo 3 de RF30: fechamento automático, como exigem a descrição do
+  próprio RF e RN11; o passo ainda menciona preenchimento pelo ator.
 
 - Levar a versão aprovada do ERS para o repositório; ela ainda está fora da pasta do projeto.
 - Ajustar o subfluxo A2 de RF13: RN05 bloqueia retirada com itens independentemente

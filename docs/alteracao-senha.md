@@ -25,8 +25,7 @@ Arquivos envolvidos: AlterarSenha.vue, services/autenticacao.ts e AmbientesView.
 no frontend; AutenticacaoController, AutenticacaoService e UsuarioDAO no backend.
 Não foi necessária mudança de esquema do banco.
 
-Testar-Backend.ps1 executa 58 verificações: 35 existentes, 19 de inventário e quatro
-de senha. Os testes de senha usam somente contas fictícias novas no banco temporário
+Testar-Backend.ps1 executa 70 verificações: 35 existentes, 19 de inventário, quatro de senha e 12 de OS. Os testes de senha usam somente contas fictícias novas no banco temporário
 de Testar-Inventario.ps1. Nenhuma senha do banco de trabalho é alterada pelos testes.
 
 Os testes antigos de login ainda pressupõem as credenciais iniciais do seed local.

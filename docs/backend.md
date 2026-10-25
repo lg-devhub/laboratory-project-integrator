@@ -246,7 +246,7 @@ revoga somente essa atribuição e desativa somente esse ambiente. A limpeza em 
 remove o ambiente e suas atribuições temporárias. As salas e atribuições do seed
 permanecem intactas. Interrupção abrupta pode impedir essa limpeza; a sequência de
 ids avança normalmente. As suítes existentes têm 35 testes locais; o inventário
-acrescenta 19 testes de inventário e quatro de senha em banco temporário exclusivo, totalizando 58 verificações.
+acrescenta 19 testes de inventário, quatro de senha e 12 de OS em banco temporário exclusivo, totalizando 70 verificações.
 
 O hub também permite gestão administrativa de cadastros e acessos. A rota de inventário
 também valida autorização pelo id do ambiente; conhecer um id não concede acesso.
@@ -306,9 +306,11 @@ por ambiente autorizado. ItemDados valida os campos e ItemDAO revalida acesso
 dentro da transação de cadastro. V003 associa item e auditoria automaticamente,
 preservando autoria e registros imutáveis. Patrimônio duplicado retorna 409.
 As rotas, regras, limites e testes isolados estão no [guia do inventário](inventario.md).
-As suítes somam 35 verificações existentes, 19 de inventário e quatro de alteração de senha. Testar-Backend.ps1
+As suítes somam 35 verificações existentes, 19 de inventário e quatro de alteração de senha e 12 de OS. Testar-Backend.ps1
 executa as duas etapas; Testar-Inventario.ps1 executa somente o banco temporário.
 
 A edição de itens usa V004, controle de versão e transação com auditoria.
 Os scripts de execução/teste limitam a memória das JVMs. Consulte
 [Edição e demonstração](edicao-e-demonstracao.md) para contratos e escopo.
+
+Abertura e consulta de OS também estão disponíveis. Consulte [Ordens de serviço](ordens-servico.md).

@@ -80,7 +80,7 @@ validar a senha minima da RN06 e impedir desativacao ou rebaixamento do ultimo
 administrador. Desativacao tambem devera bloquear requisicoes de sessoes existentes.
 Usuarios desativados nao sao apagados. A reativacao nao foi implementada como funcionalidade.
 
-Itens e auditoria agora possuem tabelas na V003. OS, manutencoes e movimentacoes
+Itens e auditoria possuem tabelas na V003; abertura/consulta de OS na V005. Manutencoes e movimentacoes
 ainda nao foram implementadas. A retirada de ambientes permanece pendente e devera
 verificar tanto a localizacao dos itens quanto a responsabilidade pelos equipamentos.
 
@@ -133,3 +133,15 @@ para a separação entre localização e responsabilidade.
 
 Entradas antigas permanecem válidas sem os novos campos. A atualização e sua auditoria
 são atômicas. Detalhes em [Edição e demonstração](edicao-e-demonstracao.md).
+
+## V005 Ordens de serviço
+
+ordens_servico possui PK id, FK equipamento_id para itens, FK solicitante_id para
+usuarios, problema, prioridade, status inicial ABERTA e aberta_em. O ambiente é
+obtido do equipamento, sem FK duplicada. Campos e escopo em [Ordens de serviço](ordens-servico.md).
+
+## V006 Andamento e encerramento de OS
+
+ordens_servico passa a conter descricao_atendimento (varchar 2000), fechada_em
+(timestamptz) e versao (bigint). O ciclo é ABERTA → EM_ANDAMENTO → CONCLUIDA;
+concluídas são imutáveis. Fechamento é automático, sem mudar itens. Veja [o guia de OS](ordens-servico.md).

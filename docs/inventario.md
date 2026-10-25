@@ -7,7 +7,7 @@ O consenso de localização/responsabilidade e o trabalho futuro estão em
 
 ## Usar e executar
 
-1. Inicie Docker Desktop e execute Iniciar-Banco.ps1 na raiz. O script aplica V002–V004
+1. Inicie Docker Desktop e execute Iniciar-Banco.ps1 na raiz. O script aplica V002–V006
    sem apagar o banco existente. Com o banco já ativo, pode usar Atualizar-Banco.ps1.
 2. Inicie ou reinicie a API com Iniciar-API.ps1 para carregar as novas rotas.
 3. No frontend, execute npm run dev e acesse http://localhost:5173.
@@ -105,7 +105,7 @@ sem inserir itens ou apagar auditoria no banco de trabalho.
 ## Limites deste incremento
 
 Não oferece exclusão, múltiplos cadastros por formulário,
-OS, manutenção ou movimentação. Os triggers de auditoria das futuras operações
+manutenção ou movimentação. Os triggers de auditoria das futuras operações
 deverão ser implementados junto delas, sem permitir alterações sem auditoria.
 excluido_em prepara a preservação do patrimônio; nenhuma exclusão está disponível
 na interface. A consulta administrativa dos excluídos também fica pendente.
@@ -121,3 +121,6 @@ GET /api/ambientes/{id}/itens/{itemId} consulta um item autorizado.
 PUT na mesma rota edita os campos permitidos, exigindo a versão lida anteriormente.
 V004 registra auditoria da atualização e detecta conflitos (409 ITEM_ALTERADO).
 Veja [Edição e demonstração](edicao-e-demonstracao.md) para campos, fotos e testes.
+
+Equipamentos agora permitem abrir, consultar, atualizar e concluir [ordens de serviço](ordens-servico.md).
+O histórico de alterações do item continua separado dos registros de OS.

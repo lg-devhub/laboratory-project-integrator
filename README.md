@@ -44,7 +44,7 @@ Para visualizar as tabelas, consulte [o guia do pgAdmin](docs/pgadmin.md).
 | Comando na raiz | Função |
 |---|---|
 | .\Iniciar-Banco.ps1 | Iniciar PostgreSQL e pgAdmin. |
-| .\Atualizar-Banco.ps1 | Aplicar V002–V004 no banco existente sem apagar dados. |
+| .\Atualizar-Banco.ps1 | Aplicar V002–V006 no banco existente sem apagar dados. |
 | .\Parar-Banco.ps1 | Parar os dois serviços preservando seus dados. |
 | .\Testar-Banco.ps1 | Verificar as restrições e consultas SQL do banco local. |
 | .\Iniciar-API.ps1 | Iniciar a API Java. |
@@ -82,7 +82,8 @@ A base do hub e o primeiro inventário estão funcionais: abra um ambiente para 
 pesquisar, cadastrar e editar itens/status, consultar foto e auditoria. Localização e setor responsável
 são distintos. Veja [o guia do inventário](docs/inventario.md) e o registro de
 [decisões e próximos passos](docs/decisoes-e-proximos-passos.md). Exclusão,
-movimentação, OS e manutenção seguem para incrementos posteriores.
+movimentação e manutenção seguem para incrementos posteriores. Abertura, consulta, andamento e encerramento de OS
+para equipamentos já estão disponíveis.
 
 As pastas target, node_modules e dist, quando presentes, são geradas pelas
 ferramentas e ficam fora do Git. Não representam código que o grupo precisa manter.
@@ -90,3 +91,5 @@ ferramentas e ficam fora do Git. Não representam código que o grupo precisa ma
 Para acrescentar quatro ambientes DEMO e 12 itens fictícios ao banco local, com a API
 ativa, execute .\Popular-Banco.ps1 na raiz. Reexecução não duplica os exemplos.
 Veja [Edição e demonstração](docs/edicao-e-demonstracao.md) para funcionamento e limites.
+
+Consulte [Ordens de serviço](docs/ordens-servico.md) para abertura, consulta e escopo atual.

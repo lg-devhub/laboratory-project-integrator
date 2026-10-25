@@ -4,6 +4,7 @@
 |---|---|
 | [Decisões e próximos passos](decisoes-e-proximos-passos.md) | Consenso sobre localização/responsabilidade, decisões técnicas e pendências futuras. |
 | [Inventário](inventario.md) | Tela interna, cadastro, fotos, auditoria, permissões e testes isolados. |
+| [Ordens de serviço](ordens-servico.md) | Abertura, andamento, encerramento, permissões e conflitos de edição. |
 | [Frontend](frontend.md) | Pastas Vue, rotas, store, serviços e execução. |
 | [Alteração de senha](alteracao-senha.md) | RF03/RN06, formulário, validações e limites do incremento. |
 | [Backend](backend.md) | Conexão, arquivos Java, autenticação, sessão, API, testes e futura hospedagem no Supabase. |

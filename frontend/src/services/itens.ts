@@ -6,7 +6,7 @@ export class ErroInventario extends Error {
   constructor(public status: number, mensagem: string, public codigo?: string, public itemAtual?: Item) { super(mensagem) }
 }
 
-async function conferir(resposta: Response) {
+export async function conferir(resposta: Response) {
   if (resposta.ok) return
   if (resposta.status === 401) throw new ErroInventario(401, 'Sua sessão expirou. Entre novamente.')
   if (resposta.status === 404) throw new ErroInventario(404, 'Registro indisponível ou sem permissão de acesso.')

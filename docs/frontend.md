@@ -42,6 +42,8 @@ src/
 │   ├── AmbienteCard.vue
 │   ├── AmbienteFormulario.vue
 │   ├── AmbienteAcessos.vue
+│   ├── OrdemServicoEdicao.vue
+│   ├── OrdensServico.vue
 │   ├── ItemFormulario.vue
 │   └── ItemDetalhes.vue
 ├── views/
@@ -229,3 +231,6 @@ HTTP e types/item.ts seus contratos. Os dados da lista ficam na view, sem nova s
 Pesquisa abrange nome, categoria, patrimônio, identificação e localização; filtro de
 status é uma conveniência adicional. A contagem representa registros, não soma de
 unidades de naturezas diferentes. Detalhes completos e limites estão em [Inventário](inventario.md).
+
+A seção de [ordens de serviço](ordens-servico.md) aparece nos detalhes de equipamentos,
+com lista expansível e abertura integrada ao Java/PostgreSQL.
