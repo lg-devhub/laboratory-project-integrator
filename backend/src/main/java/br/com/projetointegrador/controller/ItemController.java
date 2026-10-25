@@ -2,6 +2,7 @@ package br.com.projetointegrador.controller;
 
 import br.com.projetointegrador.dao.AmbienteDAO;
 import br.com.projetointegrador.dao.ItemDAO;
+import br.com.projetointegrador.dao.OrdemServicoDAO;
 import br.com.projetointegrador.model.Ambiente;
 import br.com.projetointegrador.model.ItemDados;
 import br.com.projetointegrador.model.ItemEdicao;
@@ -43,6 +44,12 @@ public class ItemController {
     public Object listar(HttpServletRequest request,@PathVariable long ambienteId) throws SQLException {
         exigirAcesso(usuario(request).id(),ambienteId);
         return itens.listar(ambienteId);
+    }
+
+    @GetMapping("/resumo-os")
+    public Object resumoOS(HttpServletRequest request,@PathVariable long ambienteId) throws SQLException {
+        return new OrdemServicoDAO().resumirAmbiente(usuario(request).id(),ambienteId)
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping(path="/itens",consumes="application/json")

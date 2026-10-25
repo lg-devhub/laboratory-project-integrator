@@ -40,6 +40,8 @@ nova definição do grupo. O ERS não define uma árvore de salas dentro de seto
 - Alterar a própria senha pelo hub, conforme RF03/RN06, para ambos os perfis.
 - Abrir, consultar, atualizar e concluir OS de equipamentos individuais conforme RF28–RF30.
   Consulte [Ordens de serviço](ordens-servico.md); concluídas ficam somente para consulta.
+- Registrar e consultar manutenções com técnico, autor automático e OS opcional (RF31/RF32/RN13).
+- Visualizar contagens reais por status do item e OS, sem somar materiais diferentes.
 - Preservar identidade e vínculos nesta edição comum; é uma decisão técnica de escopo,
   não uma proibição adicional da empresa. Veja [Edição e demonstração](edicao-e-demonstracao.md).
 
@@ -52,7 +54,6 @@ O nome do arquivo ERS é a versão da entrega documental, não um backlog que j�
 |---|---|---|
 | Cadastro manual de vários registros | RF24 | Diferente de informar quantidade em um único registro (RF25); definir validação e resultado do conjunto. |
 | Gerenciar contas | RF02/RF04/RF07, RN06/RN14 | Login e alteração da própria senha estão disponíveis; faltam as telas de gestão, preservação de autoria e proteção do último administrador. |
-| Manutenções | RF31/RF32/RN13 | Data, serviço, técnico, autor automático e vínculo opcional com OS. |
 | Movimentação | RF33/RN16/RN17 | Administrador altera ambiente atual, define responsável após a operação e registra origem/destino/data/autor; preserva patrimônio, OS e históricos. Não é importar ou duplicar item. |
 | Exclusão lógica de itens | RF20/RN15 | Preservar histórico e patrimônio; bloquear equipamentos com OS aberta/em andamento e permitir consulta administrativa dos excluídos. |
 | Retirar ambientes de uso | RF13/RN05 | Verificar localização de todos os itens e vínculos atuais de responsabilidade; preservar referências históricas. Sem atalho de exclusão física no hub. |

@@ -2,7 +2,7 @@
 
 Projeto acadêmico com frontend Vue, API Java e PostgreSQL local.
 O fluxo disponível é login e hub com ambientes autorizados. Administradores podem cadastrar, editar e gerenciar acessos aos ambientes.
-Cada ambiente oferece inventário com listagem, pesquisa, cadastro, foto e consulta de auditoria.
+Cada ambiente oferece inventário com cadastro/edição, fotos, auditoria, OS e registro/consulta de manutenções de equipamentos.
 
 ## Organização
 
@@ -44,7 +44,7 @@ Para visualizar as tabelas, consulte [o guia do pgAdmin](docs/pgadmin.md).
 | Comando na raiz | Função |
 |---|---|
 | .\Iniciar-Banco.ps1 | Iniciar PostgreSQL e pgAdmin. |
-| .\Atualizar-Banco.ps1 | Aplicar V002–V006 no banco existente sem apagar dados. |
+| .\Atualizar-Banco.ps1 | Aplicar V002–V007 no banco existente sem apagar dados. |
 | .\Parar-Banco.ps1 | Parar os dois serviços preservando seus dados. |
 | .\Testar-Banco.ps1 | Verificar as restrições e consultas SQL do banco local. |
 | .\Iniciar-API.ps1 | Iniciar a API Java. |
@@ -65,7 +65,7 @@ API em porta livre; não é necessário iniciar outra API manualmente para test�
 - O login Vue está integrado à API, com identidade Industrial, recuperação da sessão e saída.
 - O hub lista salas e setores autorizados e permite pesquisar por nome, tipo ou descrição.
 - Administradores cadastram/editam ambientes, escolhem sua cor e atribuem/revogam acessos de usuários. A API verifica o perfil em cada ação.
-- Retirada de ambientes ainda depende dos módulos de itens/equipamentos para cumprir a RN05; não há exclusão disponível.
+- Retirada de ambientes ainda exige implementar as verificações da RN05; não há exclusão disponível.
 
 O fluxo completo será: Vue envia requisições à API Java; o Java verifica a conta
 e as permissões, consulta PostgreSQL e devolve os dados que a interface apresenta.
@@ -82,7 +82,7 @@ A base do hub e o primeiro inventário estão funcionais: abra um ambiente para 
 pesquisar, cadastrar e editar itens/status, consultar foto e auditoria. Localização e setor responsável
 são distintos. Veja [o guia do inventário](docs/inventario.md) e o registro de
 [decisões e próximos passos](docs/decisoes-e-proximos-passos.md). Exclusão,
-movimentação e manutenção seguem para incrementos posteriores. Abertura, consulta, andamento e encerramento de OS
+movimentação segue para incremento posterior; registro e consulta de manutenção estão disponíveis. Abertura, consulta, andamento e encerramento de OS
 para equipamentos já estão disponíveis.
 
 As pastas target, node_modules e dist, quando presentes, são geradas pelas
@@ -93,3 +93,6 @@ ativa, execute .\Popular-Banco.ps1 na raiz. Reexecução não duplica os exemplo
 Veja [Edição e demonstração](docs/edicao-e-demonstracao.md) para funcionamento e limites.
 
 Consulte [Ordens de serviço](docs/ordens-servico.md) para abertura, consulta e escopo atual.
+
+Registro e histórico de manutenção, indicadores por status e contagens de OS estão
+em [Manutenções e leitura do inventário](docs/manutencoes.md).

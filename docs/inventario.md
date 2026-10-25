@@ -7,7 +7,7 @@ O consenso de localização/responsabilidade e o trabalho futuro estão em
 
 ## Usar e executar
 
-1. Inicie Docker Desktop e execute Iniciar-Banco.ps1 na raiz. O script aplica V002–V006
+1. Inicie Docker Desktop e execute Iniciar-Banco.ps1 na raiz. O script aplica V002–V007
    sem apagar o banco existente. Com o banco já ativo, pode usar Atualizar-Banco.ps1.
 2. Inicie ou reinicie a API com Iniciar-API.ps1 para carregar as novas rotas.
 3. No frontend, execute npm run dev e acesse http://localhost:5173.
@@ -104,13 +104,13 @@ sem inserir itens ou apagar auditoria no banco de trabalho.
 
 ## Limites deste incremento
 
-Não oferece exclusão, múltiplos cadastros por formulário,
-manutenção ou movimentação. Os triggers de auditoria das futuras operações
+Não oferece exclusão, múltiplos cadastros por formulário ou movimentação. Os triggers de auditoria das futuras operações
 deverão ser implementados junto delas, sem permitir alterações sem auditoria.
 excluido_em prepara a preservação do patrimônio; nenhuma exclusão está disponível
 na interface. A consulta administrativa dos excluídos também fica pendente.
 
-O histórico mostrado é auditoria de alterações, não histórico de manutenção.
+A seção Histórico de alterações é auditoria do cadastro. O Histórico de manutenção
+é outra seção, com os serviços realizados no equipamento.
 A tabela pode rolar horizontalmente em telas estreitas. Fotos, formulário e detalhes
 adaptam-se à largura. Paginação e refinamento visual podem ser discutidos quando
 houver volume real de dados; não há gráfico ou contagem fictícia de unidades.
@@ -124,3 +124,6 @@ Veja [Edição e demonstração](edicao-e-demonstracao.md) para campos, fotos e 
 
 Equipamentos agora permitem abrir, consultar, atualizar e concluir [ordens de serviço](ordens-servico.md).
 O histórico de alterações do item continua separado dos registros de OS.
+
+Registro e histórico de manutenção, contadores por status e OS na lista estão
+explicados em [Manutenções e indicadores](manutencoes.md).

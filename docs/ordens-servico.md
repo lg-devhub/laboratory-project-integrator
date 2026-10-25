@@ -42,7 +42,7 @@ textual na revisão documental do grupo.
 ## Banco e API
 
 V005 cria ordens_servico; V006 acrescenta atendimento, fechamento, versão e regras
-de transição. Atualizar-Banco.ps1/Iniciar-Banco.ps1 aplicam V002–V006 em ordem.
+de transição. Atualizar-Banco.ps1/Iniciar-Banco.ps1 aplicam V002–V007 em ordem.
 Compose também monta os arquivos na primeira inicialização de volume novo.
 Não apague volumes para atualizar. Reinicie a API para carregar as rotas novas.
 
@@ -83,7 +83,7 @@ originais são preservados. O DAO verifica acesso, bloqueia equipamento para lei
 e OS para atualização na mesma transação, comparando a versão antes de gravar.
 Operações de OS não alteram o item nem sua auditoria RF22. A OS tem solicitante,
 abertura e fechamento próprios; não foi criado histórico de cada edição da OS.
-Manutenções e central geral de OS continuam para outros incrementos.
+Manutenções agora possuem registro e consulta próprios; a central geral de OS não foi implementada.
 
 ## Arquivos e verificação
 
@@ -95,9 +95,9 @@ Manutenções e central geral de OS continuam para outros incrementos.
 - OrdemServicoDAO: autorização e operações transacionais.
 - V005/V006: esquema e integridade PostgreSQL.
 
-Testar-Inventario.ps1 executa 35 testes descartáveis: 19 de inventário, quatro de
-senha e 12 de OS. Cobrem autoria, datas, permissões, fases, atendimento, imutabilidade,
+Testar-Inventario.ps1 executa 43 testes descartáveis: 19 de inventário, quatro de
+senha, 12 de OS e oito de manutenção/resumo. Cobrem autoria, datas, permissões, fases, atendimento, imutabilidade,
 concorrência, validações, ausência de efeitos no item e consulta após mudar a
 localização em fixture SQL (sem implementar movimentação na interface).
 As migrações são reaplicadas. Testar-Backend.ps1 inclui os 35 testes anteriores,
-totalizando 70 disponíveis. Testes de OS não criam/alteram OS no banco de trabalho.
+totalizando 78 disponíveis. Testes de OS não criam/alteram OS no banco de trabalho.

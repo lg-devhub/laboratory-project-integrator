@@ -2,8 +2,10 @@
 
 | Guia | Conteúdo |
 |---|---|
+| [Guia dos diagramas](guia-diagramas-equipe.md) | Roteiro para casos de uso, classes de domínio, sequências RF28/RF30 e DER completo; separa implementação de propostas futuras. |
 | [Decisões e próximos passos](decisoes-e-proximos-passos.md) | Consenso sobre localização/responsabilidade, decisões técnicas e pendências futuras. |
 | [Inventário](inventario.md) | Tela interna, cadastro, fotos, auditoria, permissões e testes isolados. |
+| [Manutenções e indicadores](manutencoes.md) | Serviços realizados, OS opcional e contagens reais no inventário. |
 | [Ordens de serviço](ordens-servico.md) | Abertura, andamento, encerramento, permissões e conflitos de edição. |
 | [Frontend](frontend.md) | Pastas Vue, rotas, store, serviços e execução. |
 | [Alteração de senha](alteracao-senha.md) | RF03/RN06, formulário, validações e limites do incremento. |

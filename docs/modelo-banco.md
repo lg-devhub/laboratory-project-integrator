@@ -80,7 +80,7 @@ validar a senha minima da RN06 e impedir desativacao ou rebaixamento do ultimo
 administrador. Desativacao tambem devera bloquear requisicoes de sessoes existentes.
 Usuarios desativados nao sao apagados. A reativacao nao foi implementada como funcionalidade.
 
-Itens e auditoria possuem tabelas na V003; abertura/consulta de OS na V005. Manutencoes e movimentacoes
+Itens e auditoria possuem tabelas na V003; abertura/consulta de OS na V005. Manutencoes possuem registro/consulta na V007; movimentacoes
 ainda nao foram implementadas. A retirada de ambientes permanece pendente e devera
 verificar tanto a localizacao dos itens quanto a responsabilidade pelos equipamentos.
 
@@ -145,3 +145,8 @@ obtido do equipamento, sem FK duplicada. Campos e escopo em [Ordens de serviço]
 ordens_servico passa a conter descricao_atendimento (varchar 2000), fechada_em
 (timestamptz) e versao (bigint). O ciclo é ABERTA → EM_ANDAMENTO → CONCLUIDA;
 concluídas são imutáveis. Fechamento é automático, sem mudar itens. Veja [o guia de OS](ordens-servico.md).
+
+## V007 Manutenções
+
+manutencoes liga equipamento individual, OS opcional, serviço, data, técnico e autor.
+Os nomes seguem o guia de diagramas. Campos e regras em [Manutenções](manutencoes.md).

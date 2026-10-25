@@ -4,6 +4,8 @@ export const prioridadesOS = [
   { valor: 'ALTA', nome: 'Alta' },
 ] as const
 
+export interface ResumoOrdensServico { itemId: number; abertas: number; emAndamento: number; concluidas: number }
+
 export interface OrdemServicoDados { problema: string; prioridade: 'BAIXA' | 'MEDIA' | 'ALTA' }
 export type StatusOS = 'ABERTA' | 'EM_ANDAMENTO' | 'CONCLUIDA'
 export const statusOS: Record<StatusOS, string> = { ABERTA: 'Aberta', EM_ANDAMENTO: 'Em andamento', CONCLUIDA: 'Concluída' }

@@ -84,12 +84,12 @@ Os scripts Java usam limites de memória para Maven e JVM, com verificações ex
 em sequência. O limite de heap não corresponde ao consumo total do processo.
 Iniciar-API.ps1 permite ajustar os argumentos pelo parâmetro ArgumentosJvm.
 
-Testar-Backend.ps1 executa 35 testes de autenticação/ambientes, 19 de inventário, quatro de alteração de senha e 12 de OS
-em banco temporário exclusivo. A conferência em navegador incluiu cadastro, edição,
+Testar-Backend.ps1 executa 35 testes de autenticação/ambientes, 19 de inventário, quatro de alteração de senha, 12 de OS e oito de manutenção/resumo.
+As suítes de inventário, senha e OS/manutenção usam banco temporário exclusivo. A conferência em navegador incluiu cadastro, edição,
 troca de status, foto mantida/removida, duas abas em conflito, rascunho preservado,
 recarga explícita, cancelamento e larguras de 1440, 390 e 320 pixels.
 
-Exclusão lógica, retirada de ambientes, movimentações, manutenção, gestão de
+Exclusão lógica, retirada de ambientes, movimentações, gestão de
 contas e cadastro de vários registros continuam pendentes. A carga fictícia é
 um recurso de demonstração autorizado, não um novo requisito da empresa.
 

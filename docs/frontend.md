@@ -44,6 +44,8 @@ src/
 │   ├── AmbienteAcessos.vue
 │   ├── OrdemServicoEdicao.vue
 │   ├── OrdensServico.vue
+│   ├── InventarioResumo.vue
+│   ├── Manutencoes.vue
 │   ├── ItemFormulario.vue
 │   └── ItemDetalhes.vue
 ├── views/
@@ -234,3 +236,6 @@ unidades de naturezas diferentes. Detalhes completos e limites estão em [Invent
 
 A seção de [ordens de serviço](ordens-servico.md) aparece nos detalhes de equipamentos,
 com lista expansível e abertura integrada ao Java/PostgreSQL.
+
+Manutencoes.vue registra e consulta serviços; InventarioResumo.vue mostra indicadores
+por status e permite filtrar registros. Veja [Manutenções e indicadores](manutencoes.md).

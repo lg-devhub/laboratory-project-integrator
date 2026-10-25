@@ -5,6 +5,9 @@ import { ArrowLeft, Package, Plus, Search } from '@lucide/vue'
 import MarcaStocka from '@/components/MarcaStocka.vue'
 import ItemFormulario from '@/components/ItemFormulario.vue'
 import ItemDetalhes from '@/components/ItemDetalhes.vue'
+import InventarioResumo from '@/components/InventarioResumo.vue'
+import { consultarResumoOS } from '@/services/ordensServico'
+import type { ResumoOrdensServico } from '@/types/ordemServico'
 import { useAutenticacaoStore } from '@/stores/autenticacao'
 import { consultarAmbiente, listarItens, ErroInventario } from '@/services/itens'
 import { coresAmbiente, type Ambiente } from '@/types/ambiente'
@@ -24,6 +27,27 @@ const formularioAberto = ref(false)
 const itemEditando = ref<Item | null>(null)
 const itemSelecionado = ref<Item | null>(null)
 let consulta = 0
+let consultaResumo = 0
+const resumoOS = ref<ResumoOrdensServico[]>([])
+const carregandoResumoOS = ref(true)
+const erroResumoOS = ref('')
+const resumoPorItem = computed(() => new Map(resumoOS.value.map(o => [o.itemId, o])))
+
+async function carregarResumoOS() {
+  if (!ambiente.value) return
+  const id = ambiente.value.id
+  const atual = ++consultaResumo
+  carregandoResumoOS.value = true; erroResumoOS.value = ''
+  try {
+    const resultado = await consultarResumoOS(id)
+    if (atual === consultaResumo) resumoOS.value = resultado
+  } catch (falha) {
+    if (atual !== consultaResumo) return
+    if (falha instanceof ErroInventario && [401, 404].includes(falha.status)) await acessoPerdido(falha)
+    else erroResumoOS.value = 'Resumo de OS indisponível.'
+  } finally { if (atual === consultaResumo) carregandoResumoOS.value = false }
+}
+
 
 const cor = computed(() => coresAmbiente.find(c => c.valor === ambiente.value?.cor)?.hex || '#b64c1d')
 function normalizar(texto: string) { return texto.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLocaleLowerCase('pt-BR') }
@@ -34,6 +58,7 @@ const itensFiltrados = computed(() => {
 })
 
 async function acessoPerdido(falha: ErroInventario) {
+  consultaResumo++; resumoOS.value = []
   formularioAberto.value = false
   itemEditando.value = null
   itemSelecionado.value = null
@@ -49,6 +74,7 @@ async function acessoPerdido(falha: ErroInventario) {
 
 async function carregar() {
   const atual = ++consulta
+  consultaResumo++; resumoOS.value = []; carregandoResumoOS.value = true; erroResumoOS.value = ''
   carregando.value = true
   erro.value = ''
   sucesso.value = ''
@@ -66,6 +92,7 @@ async function carregar() {
     if (atual !== consulta) return
     ambiente.value = dados
     itens.value = lista
+    void carregarResumoOS()
   } catch (falha) {
     if (atual !== consulta) return
     if (falha instanceof ErroInventario && [401, 404].includes(falha.status)) await acessoPerdido(falha)
@@ -98,7 +125,7 @@ function sincronizarItem(item: Item) {
 }
 
 watch(() => route.params.ambienteId, carregar, { immediate: true })
-onBeforeUnmount(() => { consulta++ })
+onBeforeUnmount(() => { consulta++; consultaResumo++ })
 </script>
 
 <template>
@@ -115,6 +142,7 @@ onBeforeUnmount(() => { consulta++ })
           </div>
           <p class="explicacao">Este inventário mostra a localização atual dos itens. O setor responsável de cada equipamento aparece nos detalhes.</p>
         </section>
+        <InventarioResumo :itens="itens" :ordens="resumoOS" :filtro="statusFiltro" :carregando-ordens="carregandoResumoOS" :erro-ordens="erroResumoOS" @filtrar="statusFiltro = $event" @recarregar-ordens="carregarResumoOS" />
         <p v-if="sucesso" class="mensagem-sucesso" role="status">{{ sucesso }}</p>
         <section v-if="!itens.length" class="estado"><Package :size="36" :stroke-width="1.5" aria-hidden="true" /><h2>Este ambiente ainda não tem itens</h2><p>Use Cadastrar item para adicionar o primeiro registro ao inventário.</p></section>
         <section v-else aria-label="Itens do ambiente">
@@ -123,14 +151,16 @@ onBeforeUnmount(() => { consulta++ })
             <div class="filtro-status"><label for="filtro-status">Status</label><select id="filtro-status" v-model="statusFiltro"><option value="">Todos os status</option><option v-for="status in statusItens" :key="status.valor" :value="status.valor">{{ status.nome }}</option></select></div>
           </div>
           <p class="contagem" role="status">{{ itensFiltrados.length }} {{ itensFiltrados.length === 1 ? 'registro encontrado' : 'registros encontrados' }}</p>
+          <p v-if="itensFiltrados.length" class="dica-tabela">Deslize a tabela para os lados para ver quantidade, status e OS.</p>
           <div v-if="itensFiltrados.length" class="tabela-container" role="region" aria-label="Inventário; em telas estreitas, role horizontalmente" tabindex="0">
             <table class="tabela-itens"><caption class="visualmente-oculto">Itens localizados em {{ ambiente.nome }}</caption>
-              <thead><tr><th scope="col">Item</th><th scope="col">Identificação</th><th scope="col">Quantidade</th><th scope="col">Status</th><th scope="col"><span class="visualmente-oculto">Ações</span></th></tr></thead>
+              <thead><tr><th scope="col">Item</th><th scope="col">Identificação</th><th scope="col">Quantidade</th><th scope="col">Status do item</th><th scope="col">Ordens de serviço</th><th scope="col"><span class="visualmente-oculto">Ações</span></th></tr></thead>
               <tbody><tr v-for="item in itensFiltrados" :key="item.id">
                 <td><strong class="item-nome">{{ item.nome }}</strong><span class="item-categoria">{{ item.categoria }}</span></td>
                 <td><span class="patrimonio">{{ item.numeroPatrimonio || `Registro #${item.id}` }}</span><span class="item-categoria">{{ item.equipamento ? 'Equipamento individual' : item.formaRegistro === 'INDIVIDUAL' ? 'Item individual' : 'Por quantidade' }}</span></td>
-                <td class="quantidade">{{ item.quantidade }}</td>
+                <td class="quantidade"><strong>{{ item.quantidade.toLocaleString('pt-BR') }}</strong><span class="item-categoria">{{ item.formaRegistro === 'QUANTIDADE' ? 'unidades neste registro' : 'unidade individual' }}</span></td>
                 <td><span class="status-item" :class="`status-${item.status.toLowerCase()}`">{{ statusItens.find(s => s.valor === item.status)?.nome }}</span></td>
+                <td class="coluna-os"><span v-if="!item.equipamento" class="item-categoria">Não se aplica</span><span v-else-if="carregandoResumoOS" class="item-categoria">Consultando…</span><span v-else-if="erroResumoOS" class="item-categoria">Indisponível</span><div v-else-if="resumoPorItem.has(item.id)" class="etiquetas-os"><span v-if="resumoPorItem.get(item.id)?.abertas" class="etiqueta-os aberta">{{ resumoPorItem.get(item.id)?.abertas }} {{ resumoPorItem.get(item.id)?.abertas === 1 ? 'aberta' : 'abertas' }}</span><span v-if="resumoPorItem.get(item.id)?.emAndamento" class="etiqueta-os andamento">{{ resumoPorItem.get(item.id)?.emAndamento }} em andamento</span><span v-if="resumoPorItem.get(item.id)?.concluidas" class="etiqueta-os concluida">{{ resumoPorItem.get(item.id)?.concluidas }} {{ resumoPorItem.get(item.id)?.concluidas === 1 ? 'concluída' : 'concluídas' }}</span></div><span v-else class="item-categoria">Sem OS</span></td>
                 <td><button class="botao-detalhes" :aria-label="`Ver detalhes de ${item.nome}`" @click="itemSelecionado = item">Ver detalhes</button></td>
               </tr></tbody>
             </table>
@@ -140,7 +170,7 @@ onBeforeUnmount(() => { consulta++ })
       </template>
     </main>
     <ItemFormulario v-if="formularioAberto && ambiente" :ambiente="ambiente" :item="itemEditando" @fechar="formularioAberto = false; itemEditando = null" @salvo="itemSalvo" @sincronizado="sincronizarItem" @acesso-perdido="acessoPerdido" />
-    <ItemDetalhes v-if="itemSelecionado && ambiente" :item="itemSelecionado" :ambiente-nome="ambiente.nome" @fechar="itemSelecionado = null" @editar="editar" @acesso-perdido="acessoPerdido" />
+    <ItemDetalhes v-if="itemSelecionado && ambiente" :item="itemSelecionado" :ambiente-nome="ambiente.nome" @os-alterada="carregarResumoOS" @fechar="itemSelecionado = null" @editar="editar" @acesso-perdido="acessoPerdido" />
   </div>
 </template>
 
@@ -165,6 +195,8 @@ h1 { margin: 0; font-size: clamp(1.8rem, 3vw, 2.3rem); letter-spacing: -.03em; f
 .campo-busca { display: flex; align-items: center; gap: 10px; padding: 0 14px; background: var(--cor-superficie); border: 1px solid var(--cor-borda); border-radius: var(--raio-campo); color: var(--cor-texto-secundario); }
 .campo-busca input { width: 100%; min-width: 0; height: 46px; border: 0; color: var(--cor-texto); background: transparent; }
 .filtro-status select { height: 48px; padding: 8px 12px; border: 1px solid var(--cor-borda); border-radius: var(--raio-campo); background: var(--cor-superficie); color: var(--cor-texto); }
+.dica-tabela { display: none; font-size: .8rem; color: var(--cor-texto-secundario); }
+@media (max-width: 600px) { .dica-tabela { display: block; } }
 .contagem { font-size: .85rem; color: var(--cor-texto-secundario); }
 .tabela-container { position: relative; overflow-x: auto; border: 1px solid var(--cor-borda); border-radius: 8px; background: var(--cor-superficie); }
 .tabela-itens { width: 100%; border-collapse: collapse; text-align: left; font-size: .9rem; }
@@ -174,8 +206,11 @@ td:first-child { min-width: 190px; max-width: 300px; overflow-wrap: anywhere; }
 .item-nome { font-weight: 600; }
 .item-categoria { display: block; font-size: .8rem; margin-top: 5px; color: var(--cor-texto-secundario); }
 .patrimonio { display: block; max-width: 220px; overflow-wrap: anywhere; min-width: 130px; }
-.quantidade { font-variant-numeric: tabular-nums; }
-.status-item { display: inline-block; border-radius: 4px; padding: 4px 8px; font-size: .75rem; white-space: nowrap; }
+.quantidade { font-variant-numeric: tabular-nums; }.quantidade strong { font-size: 1.05rem; font-weight: 600; }
+.coluna-os { min-width: 160px; }.etiquetas-os { display: flex; flex-wrap: wrap; gap: 5px; }
+.etiqueta-os { padding: 4px 7px; font-size: .72rem; border-radius: 4px; white-space: nowrap; }
+.aberta { color: #795320; background: #fbf1dd; }.andamento { color: #376582; background: #eaf0f7; }.concluida { color: #30523b; background: #eef3ed; }
+.status-item { display: inline-block; border: 1px solid currentColor; border-radius: 4px; padding: 4px 8px; font-size: .75rem; white-space: nowrap; }
 .status-ativo { color: #31573e; background: #edf3ed; }
 .status-em_manutencao { color: #795320; background: #fbf1dd; }
 .status-inativo { color: #525c65; background: #eef0f2; }

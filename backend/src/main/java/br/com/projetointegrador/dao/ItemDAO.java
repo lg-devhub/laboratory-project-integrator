@@ -13,6 +13,19 @@ import java.util.List;
 import java.util.Optional;
 
 public class ItemDAO {
+    // OS e manutencoes compartilham a regra de equipamento e o bloqueio transacional.
+    public boolean equipamentoAutorizado(java.sql.Connection c,long usuario,long ambiente,long item) throws SQLException {
+        if(new AmbienteDAO().buscarAutorizado(c,usuario,ambiente).isEmpty())return false;
+        try(var s=c.prepareStatement("SELECT equipamento FROM public.itens WHERE id=? AND ambiente_id=? AND excluido_em IS NULL FOR SHARE")) {
+            s.setLong(1,item);s.setLong(2,ambiente);
+            try(var r=s.executeQuery()) {
+                if(!r.next())return false;
+                if(!r.getBoolean(1))throw new IllegalArgumentException("Este recurso pertence somente a equipamentos individuais.");
+                return true;
+            }
+        }
+    }
+
     private static final String SELECT_ITEM = """
             SELECT i.id,i.ambiente_id,i.nome,i.categoria,i.forma_registro,i.equipamento,i.quantidade,i.status,
                    i.numero_patrimonio,i.setor_responsavel_id,s.nome AS setor_nome,i.descricao,i.localizacao,

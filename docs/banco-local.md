@@ -61,8 +61,8 @@ O SQL inicial fica versionado com o projeto. Os scripts de inicializacao do
 container executam somente ao criar um volume vazio: editar V001 depois disso
 nao modifica um banco existente. A proxima alteracao devera ter um novo arquivo
 versionado e ser aplicada explicitamente; nao apague o volume para atualizar o esquema.
-V002, V003, V004, V005 e V006 sao aplicadas explicitamente por Atualizar-Banco.ps1 e tambem por Iniciar-Banco.ps1.
-Ainda nao ha um executor geral de migracoes no Java; o script aplica V002–V006, que sao reexecutaveis.
+V002, V003, V004, V005, V006 e V007 sao aplicadas explicitamente por Atualizar-Banco.ps1 e tambem por Iniciar-Banco.ps1.
+Ainda nao ha um executor geral de migracoes no Java; o script aplica V002–V007, que sao reexecutaveis.
 
 Os dados deste computador nao sincronizam com o Supabase. Seu colega podera
 adaptar a estrutura usando os arquivos SQL, separando os exemplos locais.
@@ -94,8 +94,8 @@ recebem o padrão; cores já escolhidas são preservadas em reexecuções.
 
 Com o banco já iniciado, execute .\Atualizar-Banco.ps1 na raiz antes de iniciar
 a API atualizada. Iniciar-Banco.ps1 também chama essa atualização automaticamente.
-Em volume novo, compose monta V001, seed, V002, V003, V004, V005 e V006 nessa ordem. A API requer
-V002–V006; executar somente o SQL V001 não é suficiente para esta versão.
+Em volume novo, compose monta V001, seed, V002, V003, V004, V005, V006 e V007 nessa ordem. A API requer
+V002–V007; executar somente o SQL V001 não é suficiente para esta versão.
 
 Não apague o volume e não altere V001 para atualizar um banco existente. V002 não
 substitui tabelas, usuários ou atribuições. Para Supabase, aplique V002 após V001
@@ -108,21 +108,24 @@ vínculos e auditoria automática do cadastro. A foto opcional fica no banco, se
 pasta de uploads externa. Ambiente atual e setor responsável são FKs distintas
 para ambientes. O responsável não cria um segundo cadastro de equipamento.
 
-Atualizar-Banco.ps1 aplica V002, V003, V004, V005 e V006 em ordem e não reaplica V001 ou o seed no
-banco existente. As cinco atualizações são reexecutáveis. As migrações não inserem itens fictícios;
+Atualizar-Banco.ps1 aplica V002, V003, V004, V005, V006 e V007 em ordem e não reaplica V001 ou o seed no
+banco existente. As seis atualizações são reexecutáveis. As migrações não inserem itens fictícios;
 a carga de demonstração é opcional e separada. Para PostgreSQL remoto equivalente, a sequência de
 esquema passa a incluir V003/V004/V005/V006. Mais detalhes e testes estão em [Inventário](inventario.md).
 
 ## V004 Edição e auditoria
 
 V004__edicao_auditoria_itens.sql acrescenta versão do item e auditoria de edição/status.
-Atualizar-Banco.ps1 reaplica V002, V003, V004, V005 e V006 sem recriar dados existentes.
+Atualizar-Banco.ps1 reaplica V002, V003, V004, V005, V006 e V007 sem recriar dados existentes.
 A carga opcional de exemplos é feita separadamente por Popular-Banco.ps1, com API ativa.
 Veja [Edição e demonstração](edicao-e-demonstracao.md).
 
 V005 acrescenta a tabela ordens_servico para abertura e consulta de OS. As migrações
-V002 a V006 são aplicadas em ordem por Atualizar-Banco.ps1. Não inserem OS fictícias.
+V002 a V007 são aplicadas em ordem por Atualizar-Banco.ps1. Não inserem OS fictícias.
 Veja [Ordens de serviço](ordens-servico.md).
 
 V006 acrescenta atendimento, fechamento e versão da OS. Atualizar-Banco.ps1 aplica
-V002 a V006 sem apagar os cadastros; concluídas ficam protegidas também no banco.
+V002 a V007 sem apagar os cadastros; concluídas ficam protegidas também no banco.
+
+V007 cria manutenções, com OS opcional do mesmo equipamento. Não insere serviços
+fictícios. Veja [Manutenções](manutencoes.md).

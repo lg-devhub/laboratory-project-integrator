@@ -1,6 +1,12 @@
 import { requisicaoApi } from './api'
 import { conferir, ErroInventario } from './itens'
-import type { OrdemServico, OrdemServicoDados, OrdemServicoEdicao } from '@/types/ordemServico'
+import type { OrdemServico, OrdemServicoDados, OrdemServicoEdicao, ResumoOrdensServico } from '@/types/ordemServico'
+
+export async function consultarResumoOS(ambienteId: number): Promise<ResumoOrdensServico[]> {
+  const resposta = await requisicaoApi('/api/ambientes/' + ambienteId + '/resumo-os')
+  await conferir(resposta)
+  return resposta.json()
+}
 
 export class ConflitoOrdemServico extends ErroInventario {
   constructor(mensagem: string, public ordemAtual: OrdemServico) { super(409, mensagem) }
