@@ -1,0 +1,49 @@
+name: stocka-local
+
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: stocka
+      POSTGRES_USER: stocka
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Execute Iniciar-Banco.ps1 para criar o arquivo .env}
+      TZ: America/Sao_Paulo
+    ports:
+      - "127.0.0.1:15432:5432"
+    volumes:
+      - stocka_data:/var/lib/postgresql/data
+      - ./database/migrations/V001__acesso_ambientes.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./database/seed/local.sql:/docker-entrypoint-initdb.d/02_seed.sql:ro
+      - ./database/migrations/V002__cor_ambiente.sql:/docker-entrypoint-initdb.d/03_cor.sql:ro
+      - ./database/migrations/V003__inventario.sql:/docker-entrypoint-initdb.d/04_inventario.sql:ro
+      - ./database/migrations/V004__edicao_auditoria_itens.sql:/docker-entrypoint-initdb.d/05_edicao.sql:ro
+      - ./database/migrations/V005__abertura_ordens_servico.sql:/docker-entrypoint-initdb.d/06_ordens_servico.sql:ro
+      - ./database/migrations/V006__andamento_encerramento_os.sql:/docker-entrypoint-initdb.d/07_encerramento_os.sql:ro
+      - ./database/migrations/V007__manutencoes.sql:/docker-entrypoint-initdb.d/08_manutencoes.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stocka -d stocka"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 10s
+
+  pgadmin:
+    image: dpage/pgadmin4:9.18
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@example.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:?Execute Iniciar-Banco.ps1 para configurar o pgAdmin}
+      PGADMIN_DISABLE_POSTFIX: "true"
+    ports:
+      - "127.0.0.1:15050:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./database/pgadmin/servers.json:/pgadmin4/servers.json:ro
+
+volumes:
+  stocka_data:
+    name: stocka-local_stocka_data
+  pgadmin_data:
+    name: stocka-local_pgadmin_data

@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "STOCKA local",
+      "Group": "STOCKA",
+      "Host": "db",
+      "Port": 5432,
+      "MaintenanceDB": "stocka",
+      "Username": "stocka",
+      "SSLMode": "prefer"
+    }
+  }
+}
