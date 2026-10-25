@@ -7,7 +7,7 @@ O consenso de localização/responsabilidade e o trabalho futuro estão em
 
 ## Usar e executar
 
-1. Inicie Docker Desktop e execute Iniciar-Banco.ps1 na raiz. O script aplica V002–V007
+1. Inicie Docker Desktop e execute Iniciar-Banco.ps1 na raiz. O script aplica V002–V010
    sem apagar o banco existente. Com o banco já ativo, pode usar Atualizar-Banco.ps1.
 2. Inicie ou reinicie a API com Iniciar-API.ps1 para carregar as novas rotas.
 3. No frontend, execute npm run dev e acesse http://localhost:5173.
@@ -104,10 +104,10 @@ sem inserir itens ou apagar auditoria no banco de trabalho.
 
 ## Limites deste incremento
 
-Não oferece exclusão, múltiplos cadastros por formulário ou movimentação. Os triggers de auditoria das futuras operações
+Cadastro de múltiplos registros e movimentação ainda não estão disponíveis. Os triggers de auditoria das futuras operações
 deverão ser implementados junto delas, sem permitir alterações sem auditoria.
-excluido_em prepara a preservação do patrimônio; nenhuma exclusão está disponível
-na interface. A consulta administrativa dos excluídos também fica pendente.
+Exclusão lógica e consulta administrativa dos excluídos estão disponíveis. Veja
+[Exclusão de itens](exclusao-itens.md); patrimônio e históricos são preservados.
 
 A seção Histórico de alterações é auditoria do cadastro. O Histórico de manutenção
 é outra seção, com os serviços realizados no equipamento.

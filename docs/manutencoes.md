@@ -94,13 +94,13 @@ oficiais nem gráficos com dados fictícios. Status do item e da OS continuam in
 
 ## Executar e verificar
 
-Atualizar-Banco.ps1/Iniciar-Banco.ps1 aplicam V002 a V007. Em instalação nova, compose
+Atualizar-Banco.ps1/Iniciar-Banco.ps1 aplicam V002 a V010. Em instalação nova, compose
 também monta V007. Não recrie volumes para atualizar o banco. Reinicie a API após
 atualizar o código. Frontend mantém npm run dev.
 
-Testar-Inventario.ps1 executa 43 verificações descartáveis: 19 de inventário,
-quatro de senha, 12 de OS e oito de manutenção/resumo. V007 é reaplicada para testar
+Testar-Inventario.ps1 executa 51 verificações descartáveis: 19 de inventário,
+quatro de senha, 12 de OS e oito de manutenção/resumo e oito de exclusão. V007 é reaplicada para testar
 reexecução. Os casos cobrem conta/autoria, vínculos, validações, histórico, elegibilidade,
 independência de status e contagens seguindo a localização atual.
-Testar-Backend.ps1 inclui também os 35 testes antigos, totalizando 78 disponíveis.
+Testar-Backend.ps1 inclui também os 35 testes antigos, totalizando 86 disponíveis.
 Os testes não inserem manutenções fictícias no banco principal.

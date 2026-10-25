@@ -23,10 +23,25 @@ public class ApiErros {
 
     @ExceptionHandler(SQLException.class)
     public ResponseEntity<?> bancoIndisponivel(SQLException erro) {
+        if (erro instanceof org.postgresql.util.PSQLException pg && pg.getServerErrorMessage()!=null) {
+            String restricao = pg.getServerErrorMessage().getConstraint();
+            if ("ambientes_vinculos_existentes".equals(restricao))
+                return ResponseEntity.status(409).body(Map.of("codigo", "AMBIENTE_COM_VINCULOS", "mensagem",
+                    "Este ambiente possui itens localizados nele ou equipamentos sob sua responsabilidade, inclusive excluidos logicamente. Trate esses vinculos antes de retira-lo de uso."));
+            if ("ambientes_setor_responsavel".equals(restricao))
+                return ResponseEntity.status(409).body(Map.of("codigo", "SETOR_RESPONSAVEL", "mensagem",
+                    "Este setor e responsavel por equipamentos e nao pode ser convertido em sala."));
+        }
+        if (erro instanceof org.postgresql.util.PSQLException pg && pg.getServerErrorMessage()!=null
+                && "usuarios_ultimo_admin_ativo".equals(pg.getServerErrorMessage().getConstraint())) {
+            return ResponseEntity.status(409).body(Map.of("codigo","ULTIMO_ADMINISTRADOR","mensagem",
+                "O ultimo administrador ativo nao pode ser desativado nem perder esse perfil."));
+        }
         if ("23505".equals(erro.getSQLState())) {
             String mensagem="Ja existe um registro com esse identificador.";
             if (erro instanceof org.postgresql.util.PSQLException pg && pg.getServerErrorMessage()!=null) {
                 String restricao=pg.getServerErrorMessage().getConstraint();
+                if ("usuarios_login_unico".equals(restricao)) mensagem="Ja existe uma conta com esse e-mail/login, inclusive entre as desativadas.";
                 if ("ambientes_nome_unico".equals(restricao)) mensagem="Ja existe um ambiente com esse nome.";
                 if ("itens_patrimonio_unico".equals(restricao)) mensagem="Ja existe um equipamento com esse patrimonio, inclusive entre os registros excluidos.";
             }

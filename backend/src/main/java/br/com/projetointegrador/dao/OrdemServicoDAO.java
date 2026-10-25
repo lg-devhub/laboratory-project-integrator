@@ -39,7 +39,7 @@ public class OrdemServicoDAO {
         SELECT o.*,u.nome AS solicitante_nome FROM public.ordens_servico o
         JOIN public.usuarios u ON u.id=o.solicitante_id
         JOIN public.itens i ON i.id=o.equipamento_id
-        WHERE i.ambiente_id=? AND i.id=? AND i.excluido_em IS NULL
+        WHERE i.ambiente_id=? AND i.id=?
         """;
 
     private OrdemServico ler(ResultSet r) throws SQLException {
@@ -54,7 +54,7 @@ public class OrdemServicoDAO {
         try(var c=Connect.conexao()) {
             c.setAutoCommit(false);
             try {
-                if(!new ItemDAO().equipamentoAutorizado(c,usuario,ambiente,item)){c.rollback();return Optional.empty();}
+                if(!new ItemDAO().equipamentoAutorizado(c,usuario,ambiente,item,true)){c.rollback();return Optional.empty();}
                 List<OrdemServico> lista=new ArrayList<>();
                 try(var s=c.prepareStatement(SELECT_OS+(ordem==null?"":" AND o.id=?")+" ORDER BY o.id DESC")) {
                     s.setLong(1,ambiente);s.setLong(2,item);if(ordem!=null)s.setLong(3,ordem);

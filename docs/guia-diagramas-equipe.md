@@ -1,6 +1,6 @@
 # Guia para reconstruir os diagramas do STOCKA
 
-Referência: ERS_STOCKA_Sprint2.docx, versão 1.7 consultada nesta conversa, e implementação até o commit 64915ee e incremento local V007 de manutenção. Preparado em 25/10/2026.
+Referência: ERS_STOCKA_Sprint2.docx, versão 1.7 consultada nesta conversa, e implementação até o commit 46dcf0c e incrementos locais V008–V010 de exclusão de itens, gestão de usuários e retirada de ambientes. Preparado em 25/10/2026.
 
 Este guia descreve o sistema completo previsto no ERS. Ele separa regras oficiais, estrutura implementada e propostas técnicas para partes ainda não implementadas. Não cria tabelas nem altera código.
 
@@ -27,7 +27,7 @@ Classes de domínio explicam os conceitos do sistema. O modelo lógico explica t
 
 Acrescentem essa situação aos títulos ou em notas. Se usarem cores, mantenham também o texto: a interpretação não deve depender somente da cor.
 
-Ter uma coluna no banco não significa ter a funcionalidade pronta. Por exemplo, ativo e excluido_em existem, mas as operações de retirada de ambientes e exclusão lógica de itens continuam pendentes.
+Ter uma coluna no banco não significa ter a funcionalidade pronta. Por exemplo, ativo e excluido_em existem: a exclusão de itens e a retirada de ambientes já estão disponíveis com as proteções explicadas neste guia.
 
 ## 2. Preparação no diagrams.net
 
@@ -108,8 +108,9 @@ IDs implementados são gerados pelo PostgreSQL: BIGINT GENERATED ALWAYS AS IDENT
 | perfil | VARCHAR(20) | NN: ADMINISTRADOR ou USUARIO |
 | ativo | BOOLEAN | NN, padrão TRUE |
 | criado_em | TIMESTAMPTZ | NN, automático |
+| versao | BIGINT | NN, padrão 1, positiva; controle de concorrência V009 |
 
-Não criem tabelas separadas para administrador e usuário comum. É a mesma tabela com perfis diferentes. A gestão/desativação de contas ainda está planejada; login e alteração da própria senha já funcionam.
+Não criem tabelas separadas para administrador e usuário comum. É a mesma tabela com perfis diferentes. Cadastro, edição e desativação estão implementados. Preservar autoria e pelo menos um administrador ativo; não há exclusão física nem reativação pela aplicação.
 
 ### 4.3 Tabela ambientes — IMPLEMENTADA
 
@@ -122,6 +123,7 @@ Não criem tabelas separadas para administrador e usuário comum. É a mesma tab
 | ativo | BOOLEAN | NN, padrão TRUE |
 | criado_em | TIMESTAMPTZ | NN, automático |
 | cor | VARCHAR(12) | NN, padrão TERRACOTA |
+| versao | BIGINT | NN, padrão 1, positiva; confirmação de retirada V010 |
 
 Cor aceita TERRACOTA, AZUL, VERDE, VIOLETA ou GRAFITE. É uma melhoria visual aprovada, não status de operação.
 
@@ -157,7 +159,7 @@ Cada linha significa que uma conta recebeu acesso a um ambiente. O administrador
 | foto | BYTEA | NULL |
 | foto_tipo | VARCHAR(10) | NULL; image/png ou image/jpeg |
 | criado_em | TIMESTAMPTZ | NN, automático |
-| excluido_em | TIMESTAMPTZ | NULL; prepara exclusão lógica ainda não disponível |
+| excluido_em | TIMESTAMPTZ | NULL; data da exclusão lógica, disponível pela API |
 | versao | BIGINT | NN, padrão 1, positiva |
 
 Notas ao lado da tabela:
@@ -186,7 +188,7 @@ Notas ao lado da tabela:
 
 Os dois campos de status são preenchidos nas alterações que mudam o status. Registros antigos podem não ter esses valores.
 
-O histórico não possui campo para o usuário escrever livremente uma ação. A aplicação o gera automaticamente. Não se edita nem se apaga auditoria pela aplicação. A ação EXCLUSAO está preparada no esquema, mas a exclusão de itens ainda não está disponível.
+O histórico não possui campo para o usuário escrever livremente uma ação. A aplicação o gera automaticamente. Não se edita nem se apaga auditoria pela aplicação. A ação EXCLUSAO é gerada na exclusão lógica, preservando os demais registros.
 
 Não adicionem valorAntigo/valorNovo genéricos como se existissem: a tabela atual registra ação, autor, data e transição de status quando aplicável.
 
@@ -324,6 +326,7 @@ Usuario — domínio correspondente à estrutura implementada:
     - perfil: PerfilUsuario
     - ativo: Boolean
     - criadoEm: OffsetDateTime
+    - versao: Long
 
 Ambiente — domínio correspondente à estrutura implementada:
 
@@ -334,6 +337,7 @@ Ambiente — domínio correspondente à estrutura implementada:
     - ativo: Boolean
     - criadoEm: OffsetDateTime
     - cor: String
+    - versao: Long
 
 Item — domínio correspondente à estrutura implementada:
 
@@ -489,22 +493,22 @@ Esta tabela agrupa requisitos que descrevem a mesma ação; não é necessário 
 | Nome da elipse | RF | Quem participa | Situação |
 |---|---|---|---|
 | Autenticar | RF01 | Usuario comum e Administrador | Implementado |
-| Cadastrar usuario | RF02 | Administrador | Planejado |
+| Cadastrar usuario | RF02 | Administrador | Implementado |
 | Alterar propria senha | RF03 | Usuario autenticado | Implementado |
-| Gerenciar dados e perfil de usuario | RF04 | Administrador | Planejado |
-| Desativar usuario | RF07 | Administrador | Planejado |
+| Gerenciar dados e perfil de usuario | RF04 | Administrador | Implementado |
+| Desativar usuario | RF07 | Administrador | Implementado |
 | Cadastrar ambiente | RF08/RF09 | Administrador | Implementado |
 | Atribuir acesso a ambientes | RF10/RF11 | Administrador | Implementado |
 | Editar ambiente | RF12 | Administrador | Implementado |
-| Retirar ambiente de uso | RF13 | Administrador | Planejado |
+| Retirar ambiente de uso | RF13 | Administrador | Implementado por desativação; bloqueado enquanto houver vínculos |
 | Consultar ambientes | RF11/RF14/RF15 | Usuario autenticado, conforme perfil | Implementado para ambientes ativos |
 | Pesquisar ambientes | RF16 | Usuario autenticado | Implementado |
 | Cadastrar item | RF17/RF18/RF25 | Usuario autenticado e autorizado | Implementado |
 | Editar item | RF19 | Usuario autenticado e autorizado | Implementado com limites atuais de edição |
-| Excluir item logicamente | RF20 | Usuario autenticado e autorizado | Planejado |
-| Consultar itens excluidos | RF20/RN15 | Administrador | Planejado |
+| Excluir item logicamente | RF20 | Usuario autenticado e autorizado | Implementado |
+| Consultar itens excluidos | RF20/RN15 | Administrador | Implementado |
 | Alterar status do item | RF21 | Usuario autenticado e autorizado | Implementado |
-| Registrar auditoria do item | RF22 | Comportamento automático, sem ator humano direto | Implementado; exclusão ainda pendente |
+| Registrar auditoria do item | RF22 | Comportamento automático, sem ator humano direto | Implementado |
 | Consultar historico de alteracoes | RF23 | Usuario autenticado e autorizado | Implementado |
 | Cadastrar multiplos itens | RF24 | Usuario autenticado e autorizado | Planejado |
 | Pesquisar itens | RF26 | Usuario autenticado e autorizado | Implementado |
@@ -698,5 +702,6 @@ Não é preciso haver cinco pessoas: uma pessoa pode assumir mais de uma entrega
 - database/migrations/V005__abertura_ordens_servico.sql.
 - database/migrations/V006__andamento_encerramento_os.sql.
 - database/migrations/V007__manutencoes.sql.
+- database/migrations/V008__exclusao_logica_itens.sql.
 
 Se houver diferença entre este guia e uma nova versão aprovada do ERS ou novas migrações, revisem o guia antes de continuar o desenho. O modelo físico de movimentação continua uma proposta, ainda sem SQL implementado; manutenção já acompanha V007.

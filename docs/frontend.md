@@ -37,10 +37,14 @@ src/
 ├── assets/
 │   └── styles/main.css
 ├── components/
+│   ├── UsuarioFormulario.vue
+│   ├── UsuarioDesativacao.vue
+│   ├── ItemExclusao.vue
 │   ├── AlterarSenha.vue
 │   ├── MarcaStocka.vue
 │   ├── AmbienteCard.vue
 │   ├── AmbienteFormulario.vue
+│   ├── AmbienteRetirada.vue
 │   ├── AmbienteAcessos.vue
 │   ├── OrdemServicoEdicao.vue
 │   ├── OrdensServico.vue
@@ -49,17 +53,20 @@ src/
 │   ├── ItemFormulario.vue
 │   └── ItemDetalhes.vue
 ├── views/
+│   ├── UsuariosView.vue
 │   ├── LoginView.vue
 │   ├── AmbientesView.vue
 │   └── InventarioView.vue
 ├── router/index.ts
 ├── services/
+│   ├── usuarios.ts
 │   ├── api.ts
 │   ├── autenticacao.ts
 │   ├── ambientes.ts
 │   └── itens.ts
 ├── stores/autenticacao.ts
 ├── types/
+│   ├── gestaoUsuario.ts
 │   ├── usuario.ts
 │   ├── ambiente.ts
 │   └── item.ts
@@ -239,3 +246,15 @@ com lista expansível e abertura integrada ao Java/PostgreSQL.
 
 Manutencoes.vue registra e consulta serviços; InventarioResumo.vue mostra indicadores
 por status e permite filtrar registros. Veja [Manutenções e indicadores](manutencoes.md).
+
+## Gestão administrativa de usuários
+
+O hub apresenta Gerenciar usuários apenas para administradores. A rota /usuarios
+confere sessão e perfil; a API também valida a permissão. UsuariosView organiza
+a listagem e a pesquisa; UsuarioFormulario cuida de cadastro/edição e
+UsuarioDesativacao solicita confirmação. O serviço usuarios.ts concentra as
+requisições e seus conflitos. Veja [contratos e regras](gestao-usuarios.md).
+
+AmbienteRetirada confirma a retirada de salas/setores pelo cartão administrativo.
+O hub só remove o cartão após a API confirmar a desativação; conflitos exigem
+atualizar a listagem e confirmar novamente. Veja [Retirada de ambientes](retirada-ambientes.md).

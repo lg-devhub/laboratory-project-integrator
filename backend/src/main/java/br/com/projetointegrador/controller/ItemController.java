@@ -40,10 +40,13 @@ public class ItemController {
         return exigirAcesso(usuario(request).id(),ambienteId);
     }
 
+    private boolean administrador(UsuarioAutenticado conta){return "ADMINISTRADOR".equals(conta.perfil());}
+
     @GetMapping("/itens")
-    public Object listar(HttpServletRequest request,@PathVariable long ambienteId) throws SQLException {
+    public Object listar(HttpServletRequest request,@PathVariable long ambienteId,@RequestParam(defaultValue="false") boolean excluidos) throws SQLException {
         exigirAcesso(usuario(request).id(),ambienteId);
-        return itens.listar(ambienteId);
+        if(excluidos && !administrador(usuario(request)))throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        return itens.listar(ambienteId,excluidos);
     }
 
     @GetMapping("/resumo-os")
@@ -66,7 +69,7 @@ public class ItemController {
     @GetMapping("/itens/{itemId}")
     public ResponseEntity<?> consultar(HttpServletRequest request,@PathVariable long ambienteId,@PathVariable long itemId) throws SQLException {
         exigirAcesso(usuario(request).id(),ambienteId);
-        var item=itens.buscar(ambienteId,itemId);
+        var item=itens.buscar(ambienteId,itemId,administrador(usuario(request)));
         return item.isPresent()?ResponseEntity.ok(item.get()):ResponseEntity.notFound().build();
     }
 
@@ -89,14 +92,33 @@ public class ItemController {
     @GetMapping("/itens/{itemId}/historico")
     public ResponseEntity<?> historico(HttpServletRequest request,@PathVariable long ambienteId,@PathVariable long itemId) throws SQLException {
         exigirAcesso(usuario(request).id(),ambienteId);
-        var historico=itens.historico(ambienteId,itemId);
+        var historico=itens.historico(ambienteId,itemId,administrador(usuario(request)));
         return historico.isEmpty() ? ResponseEntity.status(404).body(Map.of("mensagem","Item nao encontrado.")) : ResponseEntity.ok(historico);
+    }
+
+    @DeleteMapping("/itens/{itemId}")
+    public ResponseEntity<?> excluir(HttpServletRequest request,@PathVariable long ambienteId,@PathVariable long itemId,
+                                      @RequestParam long versao) throws SQLException {
+        var conta=usuario(request);
+        exigirAcesso(conta.id(),ambienteId);
+        if(versao<=0)throw new IllegalArgumentException("Informe a versao atual do item.");
+        try {
+            var item=itens.excluir(ambienteId,itemId,conta.id(),versao)
+                    .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
+            return ResponseEntity.ok(item);
+        }catch(ItemDAO.ExclusaoBloqueada erro) {
+            return ResponseEntity.status(409).body(Map.of("codigo","OS_PENDENTE","mensagem",
+                "Este equipamento possui OS aberta ou em andamento. Conclua o atendimento antes de excluir."));
+        }catch(ItemDAO.ConflitoEdicao conflito) {
+            return ResponseEntity.status(409).body(Map.of("codigo","ITEM_ALTERADO","mensagem",
+                "O item foi alterado. Revise os dados atuais antes de confirmar a exclusao.","itemAtual",conflito.atual));
+        }
     }
 
     @GetMapping("/itens/{itemId}/foto")
     public ResponseEntity<?> foto(HttpServletRequest request,@PathVariable long ambienteId,@PathVariable long itemId) throws SQLException {
         exigirAcesso(usuario(request).id(),ambienteId);
-        var foto=itens.foto(ambienteId,itemId);
+        var foto=itens.foto(ambienteId,itemId,administrador(usuario(request)));
         return foto.isEmpty() ? ResponseEntity.notFound().build()
                 : ResponseEntity.ok().contentType(MediaType.parseMediaType(foto.get().tipo())).body(foto.get().bytes());
     }

@@ -16,7 +16,7 @@ public class ManutencaoDAO {
         SELECT m.*,u.nome AS usuario_nome FROM public.manutencoes m
         JOIN public.usuarios u ON u.id=m.usuario_id
         JOIN public.itens i ON i.id=m.equipamento_id
-        WHERE i.ambiente_id=? AND i.id=? AND i.excluido_em IS NULL
+        WHERE i.ambiente_id=? AND i.id=?
         """;
     private Manutencao ler(ResultSet r) throws SQLException {
         return new Manutencao(r.getLong("id"),r.getLong("equipamento_id"),r.getObject("ordem_servico_id",Long.class),
@@ -27,7 +27,7 @@ public class ManutencaoDAO {
         try(var c=Connect.conexao()) {
             c.setAutoCommit(false);
             try {
-                if(!new ItemDAO().equipamentoAutorizado(c,usuario,ambiente,item)){c.rollback();return Optional.empty();}
+                if(!new ItemDAO().equipamentoAutorizado(c,usuario,ambiente,item,true)){c.rollback();return Optional.empty();}
                 List<Manutencao> lista=new ArrayList<>();
                 try(var s=c.prepareStatement(SELECT_MANUTENCAO+(id==null?"":" AND m.id=?")+" ORDER BY m.data_realizacao DESC,m.id DESC")) {
                     s.setLong(1,ambiente);s.setLong(2,item);if(id!=null)s.setLong(3,id);

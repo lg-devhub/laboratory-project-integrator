@@ -57,6 +57,25 @@ public class AmbienteController {
         return ambientes.ativo(id) ? ResponseEntity.ok(ambientes.listarAcessos(id)) : inexistente();
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> retirar(HttpServletRequest request, @PathVariable long id,
+                                     @RequestParam long versao) throws SQLException {
+        var usuario = exigirUsuario(request, true);
+        if (versao <= 0) throw new IllegalArgumentException("Informe a versao atual do ambiente.");
+        return ambientes.retirar(usuario.id(), id, versao) ? ResponseEntity.noContent().build() : inexistente();
+    }
+
+    @ExceptionHandler(AmbienteDAO.Alterado.class)
+    public ResponseEntity<?> alterado() {
+        return ResponseEntity.status(409).body(Map.of("codigo", "AMBIENTE_ALTERADO", "mensagem",
+                "O ambiente foi alterado. Atualize o hub e confira os dados antes de confirmar novamente."));
+    }
+
+    @ExceptionHandler(AmbienteDAO.SemPermissao.class)
+    public ResponseEntity<?> semPermissao() {
+        return ResponseEntity.status(403).body(Map.of("mensagem", "Sua permissao administrativa mudou."));
+    }
+
     public record Atribuicoes(List<Long> usuarios) { }
 
     @PutMapping(path = "/{id}/acessos", consumes = "application/json")

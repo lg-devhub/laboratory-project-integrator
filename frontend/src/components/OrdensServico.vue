@@ -57,7 +57,7 @@ function cancelar() {
   dados.value = { problema: '', prioridade: 'MEDIA' }
 }
 async function salvar() {
-  if (enviando.value || props.bloqueado) return
+  if (enviando.value || props.bloqueado || props.item.excluidoEm) return
   enviando.value = true; emit('enviando', true); erroFormulario.value = ''; sucesso.value = ''
   try {
     const ordem = await abrirOrdemServico(props.item.ambienteId, props.item.id, dados.value)
@@ -73,7 +73,7 @@ onBeforeUnmount(() => { ativo = false })
 
 <template>
   <section class="ordens-servico" aria-labelledby="titulo-ordens">
-    <div class="titulo-ordens"><h3 id="titulo-ordens">Ordens de serviço</h3><button v-if="!formularioAberto" class="botao-secundario" :disabled="carregando || !!erro || editando !== null || enviando || bloqueado" @click="formularioAberto = true; sucesso = ''"><Plus :size="16" aria-hidden="true" /> Abrir OS</button></div>
+    <div class="titulo-ordens"><h3 id="titulo-ordens">Ordens de serviço</h3><button v-if="!formularioAberto && !item.excluidoEm" class="botao-secundario" :disabled="carregando || !!erro || editando !== null || enviando || bloqueado" @click="formularioAberto = true; sucesso = ''"><Plus :size="16" aria-hidden="true" /> Abrir OS</button></div>
     <p v-if="sucesso" class="sucesso-os" role="status">{{ sucesso }}</p>
     <div v-if="!carregando && !erro" class="contadores-os" aria-label="Quantidade de OS por status"><span v-for="(nome, chave) in statusOS" :key="chave" class="status-os" :class="'os-' + chave.toLowerCase()">{{ contagens[chave] }} · {{ nome }}</span></div>
     <p v-if="carregando" role="status">Carregando ordens de serviço…</p>
@@ -94,8 +94,8 @@ onBeforeUnmount(() => { ativo = false })
         <dl><div><dt>Solicitante</dt><dd>{{ ordem.solicitanteNome }}</dd></div><div><dt>Abertura</dt><dd><time :datetime="ordem.abertaEm">{{ data(ordem.abertaEm) }}</time></dd></div><div class="problema"><dt>Problema relatado</dt><dd>{{ ordem.problema }}</dd></div></dl>
         <dl v-if="ordem.status === 'CONCLUIDA'"><div><dt>Fechamento</dt><dd><time v-if="ordem.fechadaEm" :datetime="ordem.fechadaEm">{{ data(ordem.fechadaEm) }}</time></dd></div><div class="problema"><dt>Atendimento realizado</dt><dd>{{ ordem.descricaoAtendimento }}</dd></div></dl>
         <OrdemServicoEdicao v-if="editando === ordem.id" :item="item" :ordem="ordem" :bloqueado="bloqueado" @fechar="editando = null" @salva="atualizada" @sincronizada="sincronizar" @enviando="envioEdicao" @acesso-perdido="emit('acessoPerdido', $event)" />
-        <button v-else-if="ordem.status !== 'CONCLUIDA'" class="botao-secundario atualizar-os" :disabled="editando !== null || formularioAberto || enviando || bloqueado" @click="editando = ordem.id; sucesso = ''">Atualizar OS</button>
-        <p v-else class="ajuda">OS concluída, disponível somente para consulta.</p>
+        <button v-else-if="ordem.status !== 'CONCLUIDA' && !item.excluidoEm" class="botao-secundario atualizar-os" :disabled="editando !== null || formularioAberto || enviando || bloqueado" @click="editando = ordem.id; sucesso = ''">Atualizar OS</button>
+        <p v-else class="ajuda">{{ item.excluidoEm ? 'Equipamento excluído. OS disponível somente para consulta.' : 'OS concluída, disponível somente para consulta.' }}</p>
       </details>
     </template>
   </section>

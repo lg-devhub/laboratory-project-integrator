@@ -75,14 +75,15 @@ somente os atribuidos para o usuario comum e nenhum para uma conta desativada.
 
 Essa consulta nao e um mecanismo de seguranca instalado sobre todas as tabelas.
 Quem administra diretamente o PostgreSQL continua podendo consultar os dados.
-A API Java devera usar a identidade autenticada, validar acesso em cada requisicao,
-validar a senha minima da RN06 e impedir desativacao ou rebaixamento do ultimo
-administrador. Desativacao tambem devera bloquear requisicoes de sessoes existentes.
+A API Java usa a identidade autenticada, valida o acesso em cada requisicao e
+aplica a politica de senha da RN06 no cadastro e nas alteracoes. V009 e a API
+impedem desativacao ou rebaixamento do ultimo administrador ativo. A desativacao
+bloqueia novas requisicoes de sessoes existentes.
 Usuarios desativados nao sao apagados. A reativacao nao foi implementada como funcionalidade.
 
 Itens e auditoria possuem tabelas na V003; abertura/consulta de OS na V005. Manutencoes possuem registro/consulta na V007; movimentacoes
-ainda nao foram implementadas. A retirada de ambientes permanece pendente e devera
-verificar tanto a localizacao dos itens quanto a responsabilidade pelos equipamentos.
+ainda nao foram implementadas. A retirada de ambientes verifica tanto a localizacao dos itens quanto a
+responsabilidade pelos equipamentos e preserva os registros por desativacao.
 
 
 ## Complemento: identidade visual dos ambientes
@@ -94,9 +95,9 @@ pelo usuário; não é requisito funcional adicional da empresa e não indica st
 Nome e tipo seguem independentes da cor. A atualização preserva todos os dados.
 
 O DAO agora também cadastra/edita ambientes e substitui atribuições por ambiente
-em uma transação. A API exige administrador ativo para essas ações. Ainda não há
-retirada de ambiente; suas dependências de inventário e responsabilidade serão
-implementadas junto dos módulos correspondentes para cumprir RF13/RN05.
+em uma transação. A API exige administrador ativo para essas ações. A retirada
+de ambiente está disponível por desativação, com verificações de inventário e
+responsabilidade na V010 para cumprir RF13/RN05.
 
 ## V003 Inventário e auditoria
 
@@ -111,7 +112,7 @@ implementadas junto dos módulos correspondentes para cumprir RF13/RN05.
 | itens.numero_patrimonio | varchar(120) | Obrigatório para equipamento, único mesmo após exclusão lógica futura. |
 | itens.descricao/localizacao | text/varchar(300) | Dados opcionais. |
 | itens.foto/foto_tipo | bytea/varchar(10) | Foto opcional persistida no banco. |
-| itens.criado_em/excluido_em | timestamptz | Criação automática; exclusão lógica reservada, sem operação disponível ainda. |
+| itens.criado_em/excluido_em | timestamptz | Criação automática e data da exclusão lógica; registros preservados. |
 | item_historico.id | bigint identity | PK de cada evento. |
 | item_historico.item_id | bigint NOT NULL | FK restritiva para itens.id. |
 | item_historico.usuario_id | bigint NOT NULL | FK restritiva para usuarios.id, autor real da sessão. |
@@ -150,3 +151,27 @@ concluídas são imutáveis. Fechamento é automático, sem mudar itens. Veja [o
 
 manutencoes liga equipamento individual, OS opcional, serviço, data, técnico e autor.
 Os nomes seguem o guia de diagramas. Campos e regras em [Manutenções](manutencoes.md).
+
+## V008 Exclusão lógica de itens
+
+A exclusão de itens está disponível com confirmação e auditoria. V008 bloqueia
+exclusão com OS pendente; consulta dos excluídos é administrativa e somente leitura.
+Os campos e FKs anteriores são preservados. Veja [Exclusão de itens](exclusao-itens.md).
+
+## V009 Gestão de usuários
+
+A tabela usuarios recebe versao BIGINT positivo, inicialmente 1. Alterações efetivas
+de nome, login, senha, perfil ou situação incrementam a versão. A API exige a
+versão lida para editar/desativar; a troca da própria senha também a incrementa.
+O trigger impede retirar o último administrador ativo. Desativação mantém a linha,
+atribuições e referências de autoria. Não cria tabela nova nem reativa contas.
+Veja [Gestão de usuários](gestao-usuarios.md).
+
+## V010 Retirada de ambientes
+
+ambientes.versao BIGINT positivo inicia em 1 e muda quando nome, tipo, descricao,
+cor ou ativo mudam efetivamente. DELETE /api/ambientes/{id}?versao=N desativa,
+sem apagar a linha ou atribuicoes. O trigger bloqueia retirada com qualquer item
+localizado ou equipamento sob responsabilidade, inclusive excluidos logicamente.
+Tambem impede converter setor responsavel em sala. O nome continua reservado.
+Veja [Retirada de ambientes](retirada-ambientes.md).

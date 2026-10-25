@@ -42,7 +42,7 @@ textual na revisão documental do grupo.
 ## Banco e API
 
 V005 cria ordens_servico; V006 acrescenta atendimento, fechamento, versão e regras
-de transição. Atualizar-Banco.ps1/Iniciar-Banco.ps1 aplicam V002–V007 em ordem.
+de transição. Atualizar-Banco.ps1/Iniciar-Banco.ps1 aplicam V002–V010 em ordem.
 Compose também monta os arquivos na primeira inicialização de volume novo.
 Não apague volumes para atualizar. Reinicie a API para carregar as rotas novas.
 
@@ -95,9 +95,9 @@ Manutenções agora possuem registro e consulta próprios; a central geral de OS
 - OrdemServicoDAO: autorização e operações transacionais.
 - V005/V006: esquema e integridade PostgreSQL.
 
-Testar-Inventario.ps1 executa 43 testes descartáveis: 19 de inventário, quatro de
-senha, 12 de OS e oito de manutenção/resumo. Cobrem autoria, datas, permissões, fases, atendimento, imutabilidade,
+Testar-Inventario.ps1 executa 51 testes descartáveis: 19 de inventário, quatro de
+senha, 12 de OS e oito de manutenção/resumo e oito de exclusão. Cobrem autoria, datas, permissões, fases, atendimento, imutabilidade,
 concorrência, validações, ausência de efeitos no item e consulta após mudar a
 localização em fixture SQL (sem implementar movimentação na interface).
 As migrações são reaplicadas. Testar-Backend.ps1 inclui os 35 testes anteriores,
-totalizando 78 disponíveis. Testes de OS não criam/alteram OS no banco de trabalho.
+totalizando 86 disponíveis. Testes de OS não criam/alteram OS no banco de trabalho.

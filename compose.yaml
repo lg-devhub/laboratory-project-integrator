@@ -20,6 +20,9 @@ services:
       - ./database/migrations/V005__abertura_ordens_servico.sql:/docker-entrypoint-initdb.d/06_ordens_servico.sql:ro
       - ./database/migrations/V006__andamento_encerramento_os.sql:/docker-entrypoint-initdb.d/07_encerramento_os.sql:ro
       - ./database/migrations/V007__manutencoes.sql:/docker-entrypoint-initdb.d/08_manutencoes.sql:ro
+      - ./database/migrations/V008__exclusao_logica_itens.sql:/docker-entrypoint-initdb.d/09_exclusao_itens.sql:ro
+      - ./database/migrations/V009__gestao_usuarios.sql:/docker-entrypoint-initdb.d/10_usuarios.sql:ro
+      - ./database/migrations/V010__retirada_ambientes.sql:/docker-entrypoint-initdb.d/11_retirada_ambientes.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U stocka -d stocka"]
       interval: 3s

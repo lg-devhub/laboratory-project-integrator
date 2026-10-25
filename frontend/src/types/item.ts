@@ -27,6 +27,7 @@ export interface Item extends ItemDados {
   temFoto: boolean
   criadoEm: string
   versao: number
+  excluidoEm: string | null
 }
 
 export interface ItemHistorico {

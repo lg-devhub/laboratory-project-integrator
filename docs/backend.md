@@ -139,10 +139,10 @@ As permissões de ambientes são aplicadas na consulta SQL do backend.
 
 O login segue a unicidade sem diferenciar maiúsculas adotada no banco. Espaços
 externos do login são removidos, mas a senha é comparada sem modificações.
-Campos ausentes ou vazios são recusados. A regra de tamanho mínimo para criar ou
-alterar senhas será aplicada no cadastro. Como limitação técnica do BCrypt atual,
+Campos obrigatórios ausentes ou vazios são recusados. Cadastro e troca de senha
+exigem pelo menos oito caracteres, uma letra e um número (RN06). Como limitação técnica do BCrypt atual,
 senhas acima de 72 bytes UTF-8 são recusadas para evitar truncamento silencioso.
-Essa limitação técnica deverá constar da validação do futuro cadastro.
+Essa validação é compartilhada pelo cadastro, edição administrativa e alteração da própria senha.
 
 Após o login aceito, o servidor guarda o id da conta em uma sessão. O navegador
 recebe STOCKA_SESSION, um cookie HttpOnly e SameSite=Lax. Não há token para guardar
@@ -246,7 +246,7 @@ revoga somente essa atribuição e desativa somente esse ambiente. A limpeza em 
 remove o ambiente e suas atribuições temporárias. As salas e atribuições do seed
 permanecem intactas. Interrupção abrupta pode impedir essa limpeza; a sequência de
 ids avança normalmente. As suítes existentes têm 35 testes locais; o inventário
-acrescenta 19 testes de inventário, quatro de senha, 12 de OS e oito de manutenção/resumo em banco temporário exclusivo, totalizando 78 verificações.
+acrescenta 19 testes de inventário, quatro de senha, 12 de OS e oito de manutenção/resumo e oito de exclusão e oito de gestão de usuários e oito de retirada de ambientes em banco temporário exclusivo, totalizando 102 verificações disponíveis.
 
 O hub também permite gestão administrativa de cadastros e acessos. A rota de inventário
 também valida autorização pelo id do ambiente; conhecer um id não concede acesso.
@@ -294,8 +294,8 @@ de perfil também verifica perda imediata de acesso às operações administrati
 As fixtures são ambientes exclusivos removidos em finally; dados do seed são preservados.
 
 RF08/RF09 orientam cadastro; RF10/RF11, atribuições e múltiplos ambientes; RF12,
-edição. RF13 ainda não está implementado: a retirada exige as verificações de
-localização, responsabilidade e histórico previstas na RN05. A divergência do
+edição. RF13 está implementado por desativação, com bloqueio por vínculos de
+localização/responsabilidade e preservação de registros na V010. A divergência do
 subfluxo A2 de RF13 (menciona somente itens ativos) com RN05 permanece como ponto
 de revisão documental pelo grupo; o arquivo ERS não foi editado nesta etapa.
 
@@ -306,7 +306,7 @@ por ambiente autorizado. ItemDados valida os campos e ItemDAO revalida acesso
 dentro da transação de cadastro. V003 associa item e auditoria automaticamente,
 preservando autoria e registros imutáveis. Patrimônio duplicado retorna 409.
 As rotas, regras, limites e testes isolados estão no [guia do inventário](inventario.md).
-As suítes somam 35 verificações existentes, 19 de inventário e quatro de alteração de senha, 12 de OS e oito de manutenção/resumo. Testar-Backend.ps1
+As suítes somam 35 verificações existentes, 19 de inventário e quatro de alteração de senha, 12 de OS e oito de manutenção/resumo e oito de exclusão e oito de gestão de usuários e oito de retirada de ambientes. Testar-Backend.ps1
 executa as duas etapas; Testar-Inventario.ps1 executa somente o banco temporário.
 
 A edição de itens usa V004, controle de versão e transação com auditoria.
@@ -314,3 +314,11 @@ Os scripts de execução/teste limitam a memória das JVMs. Consulte
 [Edição e demonstração](edicao-e-demonstracao.md) para contratos e escopo.
 
 Abertura e consulta de OS também estão disponíveis. Consulte [Ordens de serviço](ordens-servico.md).
+
+## Gestão administrativa de contas
+
+UsuarioController autoriza a sessão; GestaoUsuarioDAO valida novamente o
+administrador na transação e grava dados com controle de versão. UsuarioDados
+valida entrada; UsuarioGestao retorna somente campos públicos. V009 protege o
+último administrador e incrementa versões. Veja [Gestão de usuários](gestao-usuarios.md)
+para contratos, limites e testes.

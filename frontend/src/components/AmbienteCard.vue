@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import { Building2, DoorOpen, Pencil, Users } from '@lucide/vue'
+import { Building2, DoorOpen, Pencil, Users, Archive } from '@lucide/vue'
 import { coresAmbiente, type Ambiente } from '@/types/ambiente'
 
 const props = defineProps<{ ambiente: Ambiente; administrador: boolean }>()
-defineEmits<{ editar: []; acessos: [] }>()
+defineEmits<{ editar: []; acessos: []; retirar: [] }>()
 const cor = computed(() => coresAmbiente.find(c => c.valor === props.ambiente.cor)?.hex || '#b64c1d')
 </script>
 
@@ -22,6 +22,7 @@ const cor = computed(() => coresAmbiente.find(c => c.valor === props.ambiente.co
       <RouterLink class="abrir-inventario" :to="{ name: 'inventario', params: { ambienteId: ambiente.id } }" :aria-label="`Abrir inventário de ${ambiente.nome}`">Abrir inventário →</RouterLink>
     </div>
     <footer v-if="administrador" class="cartao-acoes">
+      <button class="acao-cartao retirada" :aria-label="'Retirar ' + ambiente.nome + ' de uso'" @click="$emit('retirar')"><Archive :size="16" aria-hidden="true" /> Retirar</button>
       <button class="acao-cartao" :aria-label="`Editar ${ambiente.nome}`" @click="$emit('editar')"><Pencil :size="16" aria-hidden="true" /> Editar</button>
       <button class="acao-cartao" :aria-label="`Gerenciar acessos de ${ambiente.nome}`" @click="$emit('acessos')"><Users :size="17" aria-hidden="true" /> Acessos</button>
     </footer>
@@ -43,4 +44,5 @@ p { margin: 0; color: var(--cor-texto-secundario); font-size: .9rem; line-height
 .cartao-acoes { display: flex; justify-content: space-between; flex-wrap: wrap; padding: 8px 14px; border-top: 1px solid var(--cor-borda); gap: 6px; }
 .acao-cartao { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 8px; border: 0; border-radius: 4px; background: transparent; color: var(--cor-texto-secundario); font: inherit; font-size: .85rem; }
 .acao-cartao:hover { background: var(--cor-fundo); color: var(--cor-texto); }
+.acao-cartao.retirada { color: var(--cor-erro); order: 1; }
 </style>

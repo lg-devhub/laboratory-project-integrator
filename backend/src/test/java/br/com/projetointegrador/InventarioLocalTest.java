@@ -122,7 +122,7 @@ class InventarioLocalTest {
         entrar("admin");String patrimonio="PAT-"+UUID.randomUUID();
         long id=id(enviar("POST",itens(sala),equipamento(patrimonio)));
         assertEquals(409,enviar("POST",itens(producao),equipamento(patrimonio.toLowerCase())).statusCode());
-        // Simula um estado futuro no banco isolado, sem disponibilizar exclusao pela API.
+        // Estado excluido no banco isolado para conferir preservacao e unicidade.
         try(var c=Connect.conexao();var s=c.prepareStatement("UPDATE itens SET excluido_em=now() WHERE id=?")){
             c.setAutoCommit(false);
             try(var autor=c.createStatement()){autor.execute("SELECT set_config('stocka.usuario_id',(SELECT id::text FROM usuarios WHERE login='admin@stocka.local'),true)");}
@@ -130,7 +130,7 @@ class InventarioLocalTest {
         }
         assertEquals(409,enviar("POST",itens(producao),equipamento(patrimonio)).statusCode());
         assertFalse(get(itens(sala)).body().contains(patrimonio));
-        assertEquals(404,get(itens(sala)+"/"+id+"/historico").statusCode());
+        assertEquals(200,get(itens(sala)+"/"+id+"/historico").statusCode()); // Consulta administrativa dos excluidos.
     }
 
     @Test void validaObrigatoriosQuantidadeInteiraStatusEVinculos() throws Exception {

@@ -18,6 +18,8 @@ const router = useRouter()
 const autenticacao = useAutenticacaoStore()
 const ambiente = ref<Ambiente | null>(null)
 const itens = ref<Item[]>([])
+const mostrarExcluidos = ref(false)
+const administrador = computed(() => autenticacao.usuario?.perfil === 'ADMINISTRADOR')
 const carregando = ref(true)
 const erro = ref('')
 const sucesso = ref('')
@@ -88,11 +90,11 @@ async function carregar() {
   const id = Number(route.params.ambienteId)
   if (!Number.isSafeInteger(id) || id <= 0) { erro.value = 'Ambiente indisponível.'; carregando.value = false; return }
   try {
-    const [dados, lista] = await Promise.all([consultarAmbiente(id), listarItens(id)])
+    const [dados, lista] = await Promise.all([consultarAmbiente(id), listarItens(id, mostrarExcluidos.value)])
     if (atual !== consulta) return
     ambiente.value = dados
     itens.value = lista
-    void carregarResumoOS()
+    if (!mostrarExcluidos.value) void carregarResumoOS()
   } catch (falha) {
     if (atual !== consulta) return
     if (falha instanceof ErroInventario && [401, 404].includes(falha.status)) await acessoPerdido(falha)
@@ -112,6 +114,14 @@ function itemSalvo(item: Item) {
   sucesso.value = indice >= 0 ? 'Item atualizado. Alterações efetivas foram registradas no histórico.' : 'Item cadastrado e histórico registrado.'
 }
 
+function itemExcluido(item: Item) {
+  itens.value = itens.value.filter(i => i.id !== item.id)
+  itemSelecionado.value = null
+  sucesso.value = 'Item excluído do inventário. Dados e históricos preservados.'
+  void carregarResumoOS()
+}
+function atualizarSelecionado(item: Item) { sincronizarItem(item); itemSelecionado.value = item }
+
 function editar(item: Item) {
   itemSelecionado.value = null
   itemEditando.value = item
@@ -124,7 +134,7 @@ function sincronizarItem(item: Item) {
   if (indice >= 0) itens.value[indice] = item
 }
 
-watch(() => route.params.ambienteId, carregar, { immediate: true })
+watch(() => route.params.ambienteId, () => { mostrarExcluidos.value = false; void carregar() }, { immediate: true })
 onBeforeUnmount(() => { consulta++; consultaResumo++ })
 </script>
 
@@ -138,13 +148,15 @@ onBeforeUnmount(() => { consulta++; consultaResumo++ })
       <template v-else-if="ambiente">
         <section class="apresentacao" aria-labelledby="nome-ambiente">
           <div class="titulo-inventario"><div><p class="categoria-ambiente">{{ ambiente.tipo === 'SALA' ? 'Sala' : 'Setor' }} · Inventário</p><h1 id="nome-ambiente">{{ ambiente.nome }}</h1><p class="descricao-ambiente">{{ ambiente.descricao || 'Itens localizados neste ambiente.' }}</p></div>
-            <button class="botao-principal" @click="sucesso = ''; itemEditando = null; formularioAberto = true"><Plus :size="19" aria-hidden="true" /> Cadastrar item</button>
+            <button v-if="!mostrarExcluidos" class="botao-principal" @click="sucesso = ''; itemEditando = null; formularioAberto = true"><Plus :size="19" aria-hidden="true" /> Cadastrar item</button>
           </div>
           <p class="explicacao">Este inventário mostra a localização atual dos itens. O setor responsável de cada equipamento aparece nos detalhes.</p>
         </section>
-        <InventarioResumo :itens="itens" :ordens="resumoOS" :filtro="statusFiltro" :carregando-ordens="carregandoResumoOS" :erro-ordens="erroResumoOS" @filtrar="statusFiltro = $event" @recarregar-ordens="carregarResumoOS" />
+        <label v-if="administrador" class="consulta-excluidos"><input v-model="mostrarExcluidos" type="checkbox" @change="carregar"> Consultar itens excluídos deste ambiente</label>
+        <p v-if="mostrarExcluidos" class="aviso-excluidos">Consulta administrativa dos registros excluídos. Os dados e históricos são preservados; as ações de alteração ficam indisponíveis.</p>
+        <InventarioResumo v-if="!mostrarExcluidos" :itens="itens" :ordens="resumoOS" :filtro="statusFiltro" :carregando-ordens="carregandoResumoOS" :erro-ordens="erroResumoOS" @filtrar="statusFiltro = $event" @recarregar-ordens="carregarResumoOS" />
         <p v-if="sucesso" class="mensagem-sucesso" role="status">{{ sucesso }}</p>
-        <section v-if="!itens.length" class="estado"><Package :size="36" :stroke-width="1.5" aria-hidden="true" /><h2>Este ambiente ainda não tem itens</h2><p>Use Cadastrar item para adicionar o primeiro registro ao inventário.</p></section>
+        <section v-if="!itens.length" class="estado"><Package :size="36" :stroke-width="1.5" aria-hidden="true" /><h2>{{ mostrarExcluidos ? 'Nenhum item excluído neste ambiente' : 'Este ambiente ainda não tem itens' }}</h2><p>{{ mostrarExcluidos ? 'Os itens excluídos aparecerão aqui para consulta administrativa.' : 'Use Cadastrar item para adicionar o primeiro registro ao inventário.' }}</p></section>
         <section v-else aria-label="Itens do ambiente">
           <div class="filtros-inventario">
             <div class="busca"><label for="pesquisa-itens">Buscar no inventário</label><div class="campo-busca"><Search :size="19" aria-hidden="true" /><input id="pesquisa-itens" v-model="pesquisa" type="search" autocomplete="off" placeholder="Nome, categoria, patrimônio ou identificação"></div></div>
@@ -154,13 +166,13 @@ onBeforeUnmount(() => { consulta++; consultaResumo++ })
           <p v-if="itensFiltrados.length" class="dica-tabela">Deslize a tabela para os lados para ver quantidade, status e OS.</p>
           <div v-if="itensFiltrados.length" class="tabela-container" role="region" aria-label="Inventário; em telas estreitas, role horizontalmente" tabindex="0">
             <table class="tabela-itens"><caption class="visualmente-oculto">Itens localizados em {{ ambiente.nome }}</caption>
-              <thead><tr><th scope="col">Item</th><th scope="col">Identificação</th><th scope="col">Quantidade</th><th scope="col">Status do item</th><th scope="col">Ordens de serviço</th><th scope="col"><span class="visualmente-oculto">Ações</span></th></tr></thead>
+              <thead><tr><th scope="col">Item</th><th scope="col">Identificação</th><th scope="col">Quantidade</th><th scope="col">Status do item</th><th scope="col">{{ mostrarExcluidos ? 'Excluído em' : 'Ordens de serviço' }}</th><th scope="col"><span class="visualmente-oculto">Ações</span></th></tr></thead>
               <tbody><tr v-for="item in itensFiltrados" :key="item.id">
                 <td><strong class="item-nome">{{ item.nome }}</strong><span class="item-categoria">{{ item.categoria }}</span></td>
                 <td><span class="patrimonio">{{ item.numeroPatrimonio || `Registro #${item.id}` }}</span><span class="item-categoria">{{ item.equipamento ? 'Equipamento individual' : item.formaRegistro === 'INDIVIDUAL' ? 'Item individual' : 'Por quantidade' }}</span></td>
                 <td class="quantidade"><strong>{{ item.quantidade.toLocaleString('pt-BR') }}</strong><span class="item-categoria">{{ item.formaRegistro === 'QUANTIDADE' ? 'unidades neste registro' : 'unidade individual' }}</span></td>
                 <td><span class="status-item" :class="`status-${item.status.toLowerCase()}`">{{ statusItens.find(s => s.valor === item.status)?.nome }}</span></td>
-                <td class="coluna-os"><span v-if="!item.equipamento" class="item-categoria">Não se aplica</span><span v-else-if="carregandoResumoOS" class="item-categoria">Consultando…</span><span v-else-if="erroResumoOS" class="item-categoria">Indisponível</span><div v-else-if="resumoPorItem.has(item.id)" class="etiquetas-os"><span v-if="resumoPorItem.get(item.id)?.abertas" class="etiqueta-os aberta">{{ resumoPorItem.get(item.id)?.abertas }} {{ resumoPorItem.get(item.id)?.abertas === 1 ? 'aberta' : 'abertas' }}</span><span v-if="resumoPorItem.get(item.id)?.emAndamento" class="etiqueta-os andamento">{{ resumoPorItem.get(item.id)?.emAndamento }} em andamento</span><span v-if="resumoPorItem.get(item.id)?.concluidas" class="etiqueta-os concluida">{{ resumoPorItem.get(item.id)?.concluidas }} {{ resumoPorItem.get(item.id)?.concluidas === 1 ? 'concluída' : 'concluídas' }}</span></div><span v-else class="item-categoria">Sem OS</span></td>
+                <td v-if="mostrarExcluidos" class="data-exclusao">{{ item.excluidoEm ? new Date(item.excluidoEm).toLocaleString('pt-BR') : '—' }}</td><td v-else class="coluna-os"><span v-if="!item.equipamento" class="item-categoria">Não se aplica</span><span v-else-if="carregandoResumoOS" class="item-categoria">Consultando…</span><span v-else-if="erroResumoOS" class="item-categoria">Indisponível</span><div v-else-if="resumoPorItem.has(item.id)" class="etiquetas-os"><span v-if="resumoPorItem.get(item.id)?.abertas" class="etiqueta-os aberta">{{ resumoPorItem.get(item.id)?.abertas }} {{ resumoPorItem.get(item.id)?.abertas === 1 ? 'aberta' : 'abertas' }}</span><span v-if="resumoPorItem.get(item.id)?.emAndamento" class="etiqueta-os andamento">{{ resumoPorItem.get(item.id)?.emAndamento }} em andamento</span><span v-if="resumoPorItem.get(item.id)?.concluidas" class="etiqueta-os concluida">{{ resumoPorItem.get(item.id)?.concluidas }} {{ resumoPorItem.get(item.id)?.concluidas === 1 ? 'concluída' : 'concluídas' }}</span></div><span v-else class="item-categoria">Sem OS</span></td>
                 <td><button class="botao-detalhes" :aria-label="`Ver detalhes de ${item.nome}`" @click="itemSelecionado = item">Ver detalhes</button></td>
               </tr></tbody>
             </table>
@@ -170,11 +182,14 @@ onBeforeUnmount(() => { consulta++; consultaResumo++ })
       </template>
     </main>
     <ItemFormulario v-if="formularioAberto && ambiente" :ambiente="ambiente" :item="itemEditando" @fechar="formularioAberto = false; itemEditando = null" @salvo="itemSalvo" @sincronizado="sincronizarItem" @acesso-perdido="acessoPerdido" />
-    <ItemDetalhes v-if="itemSelecionado && ambiente" :item="itemSelecionado" :ambiente-nome="ambiente.nome" @os-alterada="carregarResumoOS" @fechar="itemSelecionado = null" @editar="editar" @acesso-perdido="acessoPerdido" />
+    <ItemDetalhes v-if="itemSelecionado && ambiente" :key="itemSelecionado.id + ':' + itemSelecionado.versao" :item="itemSelecionado" :ambiente-nome="ambiente.nome" @os-alterada="carregarResumoOS" @excluido="itemExcluido" @atualizado="atualizarSelecionado" @fechar="itemSelecionado = null" @editar="editar" @acesso-perdido="acessoPerdido" />
   </div>
 </template>
 
 <style scoped>
+.consulta-excluidos { display: flex; align-items: center; gap: 10px; font-size: .85rem; margin-bottom: 22px; min-height: 40px; }
+.aviso-excluidos { padding: 14px; border-left: 3px solid var(--cor-texto-secundario); background: var(--cor-painel); font-size: .85rem; line-height: 1.5; }
+.data-exclusao { font-size: .85rem; white-space: nowrap; }
 .cabecalho-inventario { background: var(--cor-superficie); border-bottom: 1px solid var(--cor-borda); }
 .cabecalho-conteudo { max-width: 1240px; padding: 22px 32px; margin: auto; display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; }
 .nome-conta { color: var(--cor-texto-secundario); font-size: .9rem; overflow-wrap: anywhere; }

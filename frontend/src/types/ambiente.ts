@@ -15,7 +15,7 @@ export interface AmbienteDados {
   cor: CorAmbiente
 }
 
-export interface Ambiente extends AmbienteDados { id: number }
+export interface Ambiente extends AmbienteDados { id: number; versao: number }
 
 export interface AcessoAmbiente {
   id: number

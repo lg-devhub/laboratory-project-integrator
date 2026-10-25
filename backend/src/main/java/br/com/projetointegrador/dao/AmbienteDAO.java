@@ -13,6 +13,36 @@ import java.util.List;
 import java.util.Optional;
 
 public class AmbienteDAO {
+    public static class Alterado extends RuntimeException { }
+    public static class SemPermissao extends RuntimeException { }
+
+    public boolean retirar(long autor, long id, long versao) throws SQLException {
+        try (var connection = Connect.conexao()) {
+            connection.setAutoCommit(false);
+            try {
+                try (var s = connection.prepareStatement("SELECT id FROM usuarios WHERE id=? AND ativo AND perfil='ADMINISTRADOR' FOR SHARE")) {
+                    s.setLong(1, autor);
+                    try (var r = s.executeQuery()) { if (!r.next()) throw new SemPermissao(); }
+                }
+                // O mesmo ambiente e bloqueado pelo trigger dos cadastros de itens.
+                // Uma inclusao concorrente deve terminar antes da verificacao de dependencias.
+                try (var s = connection.prepareStatement("SELECT versao FROM ambientes WHERE id=? AND ativo FOR UPDATE")) {
+                    s.setLong(1, id);
+                    try (var r = s.executeQuery()) {
+                        if (!r.next()) { connection.rollback(); return false; }
+                        if (r.getLong(1) != versao) throw new Alterado();
+                    }
+                }
+                try (var s = connection.prepareStatement("UPDATE ambientes SET ativo=false WHERE id=?")) {
+                    s.setLong(1, id); s.executeUpdate();
+                }
+                connection.commit();
+                return true;
+            } catch (SQLException | RuntimeException erro) {
+                connection.rollback(); throw erro;
+            }
+        }
+    }
     public List<SetorOpcao> listarSetoresResponsaveis() throws SQLException {
         String sql="SELECT id,nome FROM public.ambientes WHERE ativo AND tipo='SETOR' ORDER BY lower(nome),id";
         try (var connection=Connect.conexao(); var statement=connection.prepareStatement(sql); var result=statement.executeQuery()) {
@@ -45,12 +75,12 @@ public class AmbienteDAO {
 
     private Ambiente ler(ResultSet result) throws SQLException {
         return new Ambiente(result.getLong("id"), result.getString("nome"), result.getString("tipo"),
-                result.getString("descricao"), result.getString("cor"));
+                result.getString("descricao"), result.getString("cor"), result.getLong("versao"));
     }
 
     public List<Ambiente> listarAutorizados(long usuarioId) throws SQLException {
         String sql = """
-                SELECT a.id, a.nome, a.tipo, a.descricao, a.cor
+                SELECT a.id, a.nome, a.tipo, a.descricao, a.cor, a.versao
                 FROM public.usuarios u CROSS JOIN public.ambientes a
                 WHERE u.id = ? AND u.ativo AND a.ativo
                   AND (u.perfil = 'ADMINISTRADOR' OR EXISTS (

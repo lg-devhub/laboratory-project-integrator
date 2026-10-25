@@ -24,7 +24,7 @@ public class ApiFiltro extends OncePerRequestFilter {
 
     public ApiFiltro(@Value("${stocka.frontend-origin}") String frontendOrigin) {
         cors.setAllowedOrigins(List.of(frontendOrigin));
-        cors.setAllowedMethods(List.of("GET", "POST", "PUT", "OPTIONS"));
+        cors.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         cors.setAllowedHeaders(List.of("Content-Type", "X-STOCKA-Request"));
         cors.setAllowCredentials(true);
     }

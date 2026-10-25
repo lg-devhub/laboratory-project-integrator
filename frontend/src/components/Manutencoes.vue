@@ -47,7 +47,7 @@ async function carregarOS() {
 function cancelar() { formulario.value = false; dados.value = campos(); erroFormulario.value = '' }
 function abrir() { formulario.value = true; sucesso.value = ''; void carregarOS() }
 async function salvar() {
-  if (enviando.value || props.bloqueado) return
+  if (enviando.value || props.bloqueado || props.item.excluidoEm) return
   enviando.value = true; emit('enviando', true); erroFormulario.value = ''; sucesso.value = ''
   try {
     const registro = await registrarManutencao(props.item.ambienteId, props.item.id, dados.value)
@@ -64,7 +64,7 @@ onBeforeUnmount(() => { ativo = false })
 
 <template>
   <section class="manutencoes" aria-labelledby="titulo-manutencoes">
-    <div class="titulo"><h3 id="titulo-manutencoes">Histórico de manutenção</h3><button v-if="!formulario" class="botao-secundario" :disabled="carregando || !!erro || bloqueado" @click="abrir"><Plus :size="16" aria-hidden="true" /> Registrar manutenção</button></div>
+    <div class="titulo"><h3 id="titulo-manutencoes">Histórico de manutenção</h3><button v-if="!formulario && !item.excluidoEm" class="botao-secundario" :disabled="carregando || !!erro || bloqueado" @click="abrir"><Plus :size="16" aria-hidden="true" /> Registrar manutenção</button></div>
     <p v-if="sucesso" class="sucesso" role="status">{{ sucesso }}</p>
     <p v-if="carregando" role="status">Carregando manutenções…</p>
     <div v-else-if="erro"><p class="mensagem-erro" role="alert">{{ erro }}</p><button class="botao-secundario" @click="carregar">Tentar novamente</button></div>

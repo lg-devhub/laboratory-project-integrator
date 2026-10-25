@@ -2,6 +2,8 @@
 
 Projeto acadêmico com frontend Vue, API Java e PostgreSQL local.
 O fluxo disponível é login e hub com ambientes autorizados. Administradores podem cadastrar, editar e gerenciar acessos aos ambientes.
+Salas e setores podem ser [retirados de uso](docs/retirada-ambientes.md) pelo administrador quando estiverem sem vínculos com itens/equipamentos.
+Administradores também podem [cadastrar, editar e desativar usuários](docs/gestao-usuarios.md), preservando históricos.
 Cada ambiente oferece inventário com cadastro/edição, fotos, auditoria, OS e registro/consulta de manutenções de equipamentos.
 
 ## Organização
@@ -44,7 +46,7 @@ Para visualizar as tabelas, consulte [o guia do pgAdmin](docs/pgadmin.md).
 | Comando na raiz | Função |
 |---|---|
 | .\Iniciar-Banco.ps1 | Iniciar PostgreSQL e pgAdmin. |
-| .\Atualizar-Banco.ps1 | Aplicar V002–V007 no banco existente sem apagar dados. |
+| .\Atualizar-Banco.ps1 | Aplicar V002–V010 no banco existente sem apagar dados. |
 | .\Parar-Banco.ps1 | Parar os dois serviços preservando seus dados. |
 | .\Testar-Banco.ps1 | Verificar as restrições e consultas SQL do banco local. |
 | .\Iniciar-API.ps1 | Iniciar a API Java. |
@@ -96,3 +98,6 @@ Consulte [Ordens de serviço](docs/ordens-servico.md) para abertura, consulta e 
 
 Registro e histórico de manutenção, indicadores por status e contagens de OS estão
 em [Manutenções e leitura do inventário](docs/manutencoes.md).
+
+Itens agora permitem exclusão lógica com confirmação, auditoria e consulta administrativa.
+Veja [Exclusão de itens](docs/exclusao-itens.md). Retirada de ambientes e desativação de usuários seguem pendentes.

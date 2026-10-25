@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { Search, Building2, Plus } from '@lucide/vue'
 import MarcaStocka from '@/components/MarcaStocka.vue'
 import AmbienteCard from '@/components/AmbienteCard.vue'
 import AmbienteFormulario from '@/components/AmbienteFormulario.vue'
 import AmbienteAcessos from '@/components/AmbienteAcessos.vue'
+import AmbienteRetirada from '@/components/AmbienteRetirada.vue'
 import AlterarSenha from '@/components/AlterarSenha.vue'
 import { useAutenticacaoStore } from '@/stores/autenticacao'
 import { listarAmbientes } from '@/services/ambientes'
@@ -25,6 +26,23 @@ const ambienteEditando = ref<Ambiente | null>(null)
 const ambienteAcessos = ref<Ambiente | null>(null)
 const sucesso = ref('')
 const alterandoSenha = ref(false)
+const ambienteRetirando = ref<Ambiente | null>(null)
+
+function ambienteRetirado() {
+  ambientes.value = ambientes.value.filter(a => a.id !== ambienteRetirando.value?.id)
+  ambienteRetirando.value = null
+  sucesso.value = 'Ambiente retirado de uso. Cadastro e atribuições preservados.'
+}
+async function atualizarRetirada() {
+  ambienteRetirando.value = null
+  await carregarAmbientes()
+}
+async function conferirAcessoRetirada() {
+  ambienteRetirando.value = null
+  await autenticacao.verificarSessao()
+  if (!autenticacao.autenticado) await sessaoExpirada()
+  else { sucesso.value = ''; await carregarAmbientes() }
+}
 
 function abrirFormulario(ambiente: Ambiente | null = null) {
   ambienteEditando.value = ambiente
@@ -47,6 +65,7 @@ function acessosSalvos() {
 }
 
 async function sessaoExpirada() {
+  ambienteRetirando.value = null
   alterandoSenha.value = false
   formularioAberto.value = false
   ambienteAcessos.value = null
@@ -108,6 +127,7 @@ onMounted(carregarAmbientes)
         <MarcaStocka />
         <div class="conta">
           <span v-if="autenticacao.usuario" class="nome-conta">{{ autenticacao.usuario.nome }}</span>
+          <RouterLink v-if="administrador" :to="{ name: 'usuarios' }" class="botao-secundario gerenciar-usuarios">Gerenciar usuários</RouterLink>
           <button class="botao-secundario" :disabled="saindo" @click="sucesso = ''; alterandoSenha = true">Alterar senha</button>
           <button class="botao-secundario" :disabled="saindo" @click="sair">{{ saindo ? 'Saindo…' : 'Sair' }}</button>
         </div>
@@ -151,7 +171,7 @@ onMounted(carregarAmbientes)
         </p>
         <div v-if="ambientesFiltrados.length" class="grade-ambientes">
           <AmbienteCard v-for="ambiente in ambientesFiltrados" :key="ambiente.id" :ambiente="ambiente" :administrador="administrador"
-            @editar="abrirFormulario(ambiente)" @acessos="sucesso = ''; ambienteAcessos = ambiente" />
+            @editar="abrirFormulario(ambiente)" @acessos="sucesso = ''; ambienteAcessos = ambiente" @retirar="sucesso = ''; ambienteRetirando = ambiente" />
         </div>
         <div v-else class="estado">
           <h2>Nenhum resultado para sua pesquisa</h2>
@@ -161,6 +181,7 @@ onMounted(carregarAmbientes)
       </section>
     </main>
     <AmbienteFormulario v-if="formularioAberto && administrador" :ambiente="ambienteEditando" @fechar="formularioAberto = false" @salvo="ambienteSalvo" @sessao-expirada="sessaoExpirada" />
+    <AmbienteRetirada v-if="ambienteRetirando && administrador" :ambiente="ambienteRetirando" @fechar="ambienteRetirando = null" @retirado="ambienteRetirado" @atualizar="atualizarRetirada" @acesso-perdido="conferirAcessoRetirada" />
     <AmbienteAcessos v-if="ambienteAcessos && administrador" :ambiente="ambienteAcessos" @fechar="ambienteAcessos = null" @salvo="acessosSalvos" @sessao-expirada="sessaoExpirada" />
     <AlterarSenha v-if="alterandoSenha" @fechar="alterandoSenha = false" @salvo="alterandoSenha = false; sucesso = 'Senha alterada. Use a nova senha no próximo login.'" @sessao-expirada="sessaoExpirada" />
   </div>
@@ -169,6 +190,7 @@ onMounted(carregarAmbientes)
 <style scoped>
 .cabecalho { border-bottom: 1px solid var(--cor-borda); background: var(--cor-superficie); }
 .cabecalho-conteudo { display: flex; align-items: center; justify-content: space-between; gap: 24px; max-width: 1240px; margin: auto; padding: 22px 32px; }
+.gerenciar-usuarios { text-decoration: none; display: inline-flex; align-items: center; }
 .conta { display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-width: 0; flex-wrap: wrap; }
 .nome-conta { font-size: 0.9rem; overflow-wrap: anywhere; color: var(--cor-texto-secundario); }
 .hub { max-width: 1240px; margin: auto; padding: 48px 32px 72px; }
@@ -194,7 +216,8 @@ h1 { margin: 0; font-size: clamp(1.8rem, 3vw, 2.3rem); font-weight: 600; letter-
 @media (max-width: 950px) { .grade-ambientes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 600px) {
   .cabecalho-conteudo { flex-wrap: wrap; padding: 20px; }
-  .conta { width: 100%; justify-content: space-between; gap: 12px; }
+  .gerenciar-usuarios { text-decoration: none; display: inline-flex; align-items: center; }
+.conta { width: 100%; justify-content: space-between; gap: 12px; }
   .hub { padding: 32px 20px 48px; }
   .grade-ambientes { grid-template-columns: 1fr; gap: 20px; }
   .estado { padding: 40px 0; }

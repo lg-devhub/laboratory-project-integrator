@@ -62,7 +62,7 @@ container executam somente ao criar um volume vazio: editar V001 depois disso
 nao modifica um banco existente. A proxima alteracao devera ter um novo arquivo
 versionado e ser aplicada explicitamente; nao apague o volume para atualizar o esquema.
 V002, V003, V004, V005, V006 e V007 sao aplicadas explicitamente por Atualizar-Banco.ps1 e tambem por Iniciar-Banco.ps1.
-Ainda nao ha um executor geral de migracoes no Java; o script aplica V002–V007, que sao reexecutaveis.
+Ainda nao ha um executor geral de migracoes no Java; o script aplica V002–V010, que sao reexecutaveis.
 
 Os dados deste computador nao sincronizam com o Supabase. Seu colega podera
 adaptar a estrutura usando os arquivos SQL, separando os exemplos locais.
@@ -95,7 +95,7 @@ recebem o padrão; cores já escolhidas são preservadas em reexecuções.
 Com o banco já iniciado, execute .\Atualizar-Banco.ps1 na raiz antes de iniciar
 a API atualizada. Iniciar-Banco.ps1 também chama essa atualização automaticamente.
 Em volume novo, compose monta V001, seed, V002, V003, V004, V005, V006 e V007 nessa ordem. A API requer
-V002–V007; executar somente o SQL V001 não é suficiente para esta versão.
+V002–V010; executar somente o SQL V001 não é suficiente para esta versão.
 
 Não apague o volume e não altere V001 para atualizar um banco existente. V002 não
 substitui tabelas, usuários ou atribuições. Para Supabase, aplique V002 após V001
@@ -121,11 +121,11 @@ A carga opcional de exemplos é feita separadamente por Popular-Banco.ps1, com A
 Veja [Edição e demonstração](edicao-e-demonstracao.md).
 
 V005 acrescenta a tabela ordens_servico para abertura e consulta de OS. As migrações
-V002 a V007 são aplicadas em ordem por Atualizar-Banco.ps1. Não inserem OS fictícias.
+V002 a V010 são aplicadas em ordem por Atualizar-Banco.ps1. Não inserem OS fictícias.
 Veja [Ordens de serviço](ordens-servico.md).
 
 V006 acrescenta atendimento, fechamento e versão da OS. Atualizar-Banco.ps1 aplica
-V002 a V007 sem apagar os cadastros; concluídas ficam protegidas também no banco.
+V002 a V010 sem apagar os cadastros; concluídas ficam protegidas também no banco.
 
 V007 cria manutenções, com OS opcional do mesmo equipamento. Não insere serviços
 fictícios. Veja [Manutenções](manutencoes.md).

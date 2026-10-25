@@ -12,13 +12,17 @@ import java.util.Optional;
 public class AutenticacaoService {
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
 
-    public boolean alterarSenha(long id, String senhaAtual, String novaSenha, String confirmacao) throws SQLException {
+    public static void validarNovaSenha(String novaSenha) {
         if (novaSenha == null || novaSenha.codePointCount(0, novaSenha.length()) < 8
                 || !novaSenha.codePoints().anyMatch(Character::isLetter)
                 || !novaSenha.codePoints().anyMatch(Character::isDigit))
             throw new IllegalArgumentException("A nova senha deve ter pelo menos 8 caracteres, uma letra e um numero.");
         if (novaSenha.getBytes(StandardCharsets.UTF_8).length > 72 || novaSenha.indexOf('\0') >= 0)
             throw new IllegalArgumentException("A nova senha deve ter ate 72 bytes em UTF-8 e nao pode conter caractere nulo.");
+    }
+
+    public boolean alterarSenha(long id, String senhaAtual, String novaSenha, String confirmacao) throws SQLException {
+        validarNovaSenha(novaSenha);
         if (!novaSenha.equals(confirmacao))
             throw new IllegalArgumentException("A confirmacao da nova senha nao confere.");
         if (senhaAtual == null || senhaAtual.isBlank() || senhaAtual.getBytes(StandardCharsets.UTF_8).length > 72)

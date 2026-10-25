@@ -15,9 +15,12 @@ import java.util.Optional;
 public class ItemDAO {
     // OS e manutencoes compartilham a regra de equipamento e o bloqueio transacional.
     public boolean equipamentoAutorizado(java.sql.Connection c,long usuario,long ambiente,long item) throws SQLException {
+        return equipamentoAutorizado(c,usuario,ambiente,item,false);
+    }
+    public boolean equipamentoAutorizado(java.sql.Connection c,long usuario,long ambiente,long item,boolean consultaHistorica) throws SQLException {
         if(new AmbienteDAO().buscarAutorizado(c,usuario,ambiente).isEmpty())return false;
-        try(var s=c.prepareStatement("SELECT equipamento FROM public.itens WHERE id=? AND ambiente_id=? AND excluido_em IS NULL FOR SHARE")) {
-            s.setLong(1,item);s.setLong(2,ambiente);
+        try(var s=c.prepareStatement("SELECT equipamento FROM public.itens WHERE id=? AND ambiente_id=? AND (excluido_em IS NULL OR (? AND EXISTS(SELECT 1 FROM public.usuarios WHERE id=? AND ativo AND perfil=\'ADMINISTRADOR\'))) FOR SHARE")) {
+            s.setLong(1,item);s.setLong(2,ambiente);s.setBoolean(3,consultaHistorica);s.setLong(4,usuario);
             try(var r=s.executeQuery()) {
                 if(!r.next())return false;
                 if(!r.getBoolean(1))throw new IllegalArgumentException("Este recurso pertence somente a equipamentos individuais.");
@@ -29,7 +32,7 @@ public class ItemDAO {
     private static final String SELECT_ITEM = """
             SELECT i.id,i.ambiente_id,i.nome,i.categoria,i.forma_registro,i.equipamento,i.quantidade,i.status,
                    i.numero_patrimonio,i.setor_responsavel_id,s.nome AS setor_nome,i.descricao,i.localizacao,
-                   (i.foto IS NOT NULL) AS tem_foto,i.criado_em,i.versao
+                   (i.foto IS NOT NULL) AS tem_foto,i.criado_em,i.versao,i.excluido_em
             FROM public.itens i LEFT JOIN public.ambientes s ON s.id=i.setor_responsavel_id
             """;
 
@@ -37,12 +40,12 @@ public class ItemDAO {
         return new Item(r.getLong("id"),r.getLong("ambiente_id"),r.getString("nome"),r.getString("categoria"),
                 r.getString("forma_registro"),r.getBoolean("equipamento"),r.getInt("quantidade"),r.getString("status"),
                 r.getString("numero_patrimonio"),r.getObject("setor_responsavel_id",Long.class),r.getString("setor_nome"),
-                r.getString("descricao"),r.getString("localizacao"),r.getBoolean("tem_foto"),r.getObject("criado_em",OffsetDateTime.class),r.getLong("versao"));
+                r.getString("descricao"),r.getString("localizacao"),r.getBoolean("tem_foto"),r.getObject("criado_em",OffsetDateTime.class),r.getLong("versao"),r.getObject("excluido_em",OffsetDateTime.class));
     }
 
-    public List<Item> listar(long ambienteId) throws SQLException {
+    public List<Item> listar(long ambienteId,boolean excluidos) throws SQLException {
         try (var connection=Connect.conexao(); var statement=connection.prepareStatement(
-                SELECT_ITEM + " WHERE i.ambiente_id=? AND i.excluido_em IS NULL ORDER BY lower(i.nome),i.id")) {
+                SELECT_ITEM + " WHERE i.ambiente_id=? AND i.excluido_em IS "+(excluidos?"NOT NULL":"NULL")+" ORDER BY lower(i.nome),i.id")) {
             statement.setLong(1,ambienteId);
             try (var result=statement.executeQuery()) {
                 List<Item> lista=new ArrayList<>();
@@ -94,14 +97,14 @@ public class ItemDAO {
         }
     }
 
-    public List<ItemHistorico> historico(long ambienteId, long itemId) throws SQLException {
+    public List<ItemHistorico> historico(long ambienteId, long itemId,boolean incluirExcluidos) throws SQLException {
         String sql="""
                 SELECT h.id,h.acao,h.usuario_id,u.nome,h.data_hora,h.status_anterior,h.status_novo FROM public.item_historico h
                 JOIN public.usuarios u ON u.id=h.usuario_id JOIN public.itens i ON i.id=h.item_id
-                WHERE i.ambiente_id=? AND i.id=? AND i.excluido_em IS NULL ORDER BY h.id DESC
+                WHERE i.ambiente_id=? AND i.id=? AND (? OR i.excluido_em IS NULL) ORDER BY h.id DESC
                 """;
         try (var connection=Connect.conexao(); var s=connection.prepareStatement(sql)) {
-            s.setLong(1,ambienteId); s.setLong(2,itemId);
+            s.setLong(1,ambienteId); s.setLong(2,itemId);s.setBoolean(3,incluirExcluidos);
             try (var r=s.executeQuery()) {
                 List<ItemHistorico> lista=new ArrayList<>();
                 while (r.next()) lista.add(new ItemHistorico(r.getLong("id"),r.getString("acao"),r.getLong("usuario_id"),
@@ -119,10 +122,10 @@ public class ItemDAO {
         }
     }
 
-    public Optional<Item> buscar(long ambienteId,long itemId) throws SQLException {
+    public Optional<Item> buscar(long ambienteId,long itemId,boolean incluirExcluidos) throws SQLException {
         try (var connection=Connect.conexao();var s=connection.prepareStatement(
-                SELECT_ITEM+" WHERE i.ambiente_id=? AND i.id=? AND i.excluido_em IS NULL")) {
-            s.setLong(1,ambienteId);s.setLong(2,itemId);
+                SELECT_ITEM+" WHERE i.ambiente_id=? AND i.id=? AND (? OR i.excluido_em IS NULL)")) {
+            s.setLong(1,ambienteId);s.setLong(2,itemId);s.setBoolean(3,incluirExcluidos);
             try(var r=s.executeQuery()){ return r.next()?Optional.of(ler(r)):Optional.empty(); }
         }
     }
@@ -130,6 +133,35 @@ public class ItemDAO {
     public static class ConflitoEdicao extends RuntimeException {
         public final Item atual;
         public ConflitoEdicao(Item atual) { super("O item foi alterado por outra operacao."); this.atual=atual; }
+    }
+
+    public static class ExclusaoBloqueada extends RuntimeException { }
+
+    public Optional<Item> excluir(long ambienteId,long itemId,long usuarioId,long versao) throws SQLException {
+        try(var c=Connect.conexao()) {
+            c.setAutoCommit(false);
+            try {
+                if(new AmbienteDAO().buscarAutorizado(c,usuarioId,ambienteId).isEmpty()){c.rollback();return Optional.empty();}
+                Item atual;
+                try(var s=c.prepareStatement(SELECT_ITEM+" WHERE i.ambiente_id=? AND i.id=? AND i.excluido_em IS NULL FOR UPDATE OF i")) {
+                    s.setLong(1,ambienteId);s.setLong(2,itemId);
+                    try(var r=s.executeQuery()){if(!r.next()){c.rollback();return Optional.empty();}atual=ler(r);}
+                }
+                if(atual.versao()!=versao)throw new ConflitoEdicao(atual);
+                try(var s=c.prepareStatement("SELECT 1 FROM public.ordens_servico WHERE equipamento_id=? AND status IN ('ABERTA','EM_ANDAMENTO') LIMIT 1")) {
+                    s.setLong(1,itemId);try(var r=s.executeQuery()){if(r.next())throw new ExclusaoBloqueada();}
+                }
+                definirAutor(c,usuarioId);
+                try(var s=c.prepareStatement("UPDATE public.itens SET excluido_em=CURRENT_TIMESTAMP WHERE id=?")) {
+                    s.setLong(1,itemId);s.executeUpdate();
+                }
+                Item excluido;
+                try(var s=c.prepareStatement(SELECT_ITEM+" WHERE i.id=?")) {
+                    s.setLong(1,itemId);try(var r=s.executeQuery()){r.next();excluido=ler(r);}
+                }
+                c.commit();return Optional.of(excluido);
+            }catch(SQLException|RuntimeException erro){c.rollback();throw erro;}
+        }
     }
 
     public Optional<Item> editar(long ambienteId,long itemId,long usuarioId,ItemEdicao edicao) throws SQLException {
@@ -174,10 +206,10 @@ public class ItemDAO {
         }
     }
 
-    public Optional<Foto> foto(long ambienteId,long itemId) throws SQLException {
+    public Optional<Foto> foto(long ambienteId,long itemId,boolean incluirExcluidos) throws SQLException {
         try (var connection=Connect.conexao(); var s=connection.prepareStatement(
-                "SELECT foto,foto_tipo FROM public.itens WHERE ambiente_id=? AND id=? AND excluido_em IS NULL AND foto IS NOT NULL")) {
-            s.setLong(1,ambienteId); s.setLong(2,itemId);
+                "SELECT foto,foto_tipo FROM public.itens WHERE ambiente_id=? AND id=? AND (? OR excluido_em IS NULL) AND foto IS NOT NULL")) {
+            s.setLong(1,ambienteId); s.setLong(2,itemId);s.setBoolean(3,incluirExcluidos);
             try (var r=s.executeQuery()) { return r.next() ? Optional.of(new Foto(r.getBytes(1),r.getString(2))) : Optional.empty(); }
         }
     }

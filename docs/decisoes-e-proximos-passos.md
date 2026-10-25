@@ -38,8 +38,11 @@ nova definição do grupo. O ERS não define uma árvore de salas dentro de seto
 - Consultar detalhes, foto e histórico de alterações sob a mesma regra de acesso.
 - Editar campos e status com auditoria atômica e detecção de edição concorrente.
 - Alterar a própria senha pelo hub, conforme RF03/RN06, para ambos os perfis.
+- Administrador cadastra, edita e desativa contas (RF02/RF04/RF07); preserva autoria e o último administrador ativo. Veja [Gestão de usuários](gestao-usuarios.md).
 - Abrir, consultar, atualizar e concluir OS de equipamentos individuais conforme RF28–RF30.
   Consulte [Ordens de serviço](ordens-servico.md); concluídas ficam somente para consulta.
+- Retirar ambientes de uso com confirmação administrativa e bloqueio por vínculos de localização/responsabilidade (RF13/RN05). Veja [Retirada de ambientes](retirada-ambientes.md).
+- Excluir logicamente itens com auditoria e bloqueio por OS pendente; administrador consulta excluídos (RF20/RN15).
 - Registrar e consultar manutenções com técnico, autor automático e OS opcional (RF31/RF32/RN13).
 - Visualizar contagens reais por status do item e OS, sem somar materiais diferentes.
 - Preservar identidade e vínculos nesta edição comum; é uma decisão técnica de escopo,
@@ -53,10 +56,8 @@ O nome do arquivo ERS é a versão da entrega documental, não um backlog que j�
 | Etapa | Requisito ou decisão | Cuidados |
 |---|---|---|
 | Cadastro manual de vários registros | RF24 | Diferente de informar quantidade em um único registro (RF25); definir validação e resultado do conjunto. |
-| Gerenciar contas | RF02/RF04/RF07, RN06/RN14 | Login e alteração da própria senha estão disponíveis; faltam as telas de gestão, preservação de autoria e proteção do último administrador. |
 | Movimentação | RF33/RN16/RN17 | Administrador altera ambiente atual, define responsável após a operação e registra origem/destino/data/autor; preserva patrimônio, OS e históricos. Não é importar ou duplicar item. |
-| Exclusão lógica de itens | RF20/RN15 | Preservar histórico e patrimônio; bloquear equipamentos com OS aberta/em andamento e permitir consulta administrativa dos excluídos. |
-| Retirar ambientes de uso | RF13/RN05 | Verificar localização de todos os itens e vínculos atuais de responsabilidade; preservar referências históricas. Sem atalho de exclusão física no hub. |
+
 
 A ordem acima é uma sugestão de desenvolvimento incremental; pode ser discutida
 antes de iniciar cada etapa. Não apresentar ações ainda indisponíveis como funcionais.

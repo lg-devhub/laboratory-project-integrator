@@ -20,8 +20,8 @@ export async function consultarAmbiente(id: number): Promise<Ambiente> {
   return resposta.json()
 }
 
-export async function listarItens(id: number): Promise<Item[]> {
-  const resposta = await requisicaoApi(`/api/ambientes/${id}/itens`)
+export async function listarItens(id: number, excluidos = false): Promise<Item[]> {
+  const resposta = await requisicaoApi('/api/ambientes/' + id + '/itens?excluidos=' + excluidos)
   await conferir(resposta)
   return resposta.json()
 }
@@ -59,4 +59,10 @@ export async function consultarFoto(ambienteId: number, itemId: number): Promise
   const resposta = await requisicaoApi(`/api/ambientes/${ambienteId}/itens/${itemId}/foto`)
   await conferir(resposta)
   return resposta.blob()
+}
+
+export async function excluirItem(item: Item): Promise<Item> {
+  const resposta = await requisicaoApi('/api/ambientes/' + item.ambienteId + '/itens/' + item.id + '?versao=' + item.versao, { method: 'DELETE' })
+  await conferir(resposta)
+  return resposta.json()
 }

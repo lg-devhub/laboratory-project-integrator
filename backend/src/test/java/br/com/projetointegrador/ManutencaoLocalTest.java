@@ -25,7 +25,7 @@ class ManutencaoLocalTest {
     @BeforeAll static void iniciar() throws Exception {
         String url=Dotenv.configure().ignoreIfMissing().load().get("DB_URL");
         assertNotNull(url);assertTrue(url.matches("jdbc:postgresql://(localhost|127\\.0\\.0\\.1):15432/stocka_testes_inventario_[a-f0-9]{12}(\\?.*)?"));
-        try(var c=Connect.conexao();var s=c.createStatement();var r=s.executeQuery("SELECT id,tipo FROM ambientes ORDER BY id")) {
+        try(var c=Connect.conexao();var s=c.createStatement();var r=s.executeQuery("SELECT id,tipo FROM ambientes WHERE nome IN ('Producao','Sala de manutencao') ORDER BY id")) {
             while(r.next()){if(r.getString(2).equals("SETOR"))setor=r.getLong(1);else sala=r.getLong(1);}
         }
         application=SpringApplication.run(ApiApplication.class,"--server.port=0");
