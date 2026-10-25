@@ -10,6 +10,17 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 public class UsuarioDAO {
+    // A comparacao do hash anterior impede duas trocas concorrentes de se sobrescreverem.
+    public boolean alterarSenha(long id, String hashAnterior, String novoHash) throws SQLException {
+        try (var connection = Connect.conexao(); var statement = connection.prepareStatement(
+                "UPDATE public.usuarios SET senha_hash=? WHERE id=? AND ativo AND senha_hash=?")) {
+            statement.setString(1, novoHash);
+            statement.setLong(2, id);
+            statement.setString(3, hashAnterior);
+            return statement.executeUpdate() == 1;
+        }
+    }
+
     public Optional<Usuario> buscarPorLogin(String login) throws SQLException {
         return consultar("lower(login) = lower(?)", login);
     }

@@ -6,6 +6,7 @@ import MarcaStocka from '@/components/MarcaStocka.vue'
 import AmbienteCard from '@/components/AmbienteCard.vue'
 import AmbienteFormulario from '@/components/AmbienteFormulario.vue'
 import AmbienteAcessos from '@/components/AmbienteAcessos.vue'
+import AlterarSenha from '@/components/AlterarSenha.vue'
 import { useAutenticacaoStore } from '@/stores/autenticacao'
 import { listarAmbientes } from '@/services/ambientes'
 import type { Ambiente } from '@/types/ambiente'
@@ -23,6 +24,7 @@ const formularioAberto = ref(false)
 const ambienteEditando = ref<Ambiente | null>(null)
 const ambienteAcessos = ref<Ambiente | null>(null)
 const sucesso = ref('')
+const alterandoSenha = ref(false)
 
 function abrirFormulario(ambiente: Ambiente | null = null) {
   ambienteEditando.value = ambiente
@@ -45,6 +47,7 @@ function acessosSalvos() {
 }
 
 async function sessaoExpirada() {
+  alterandoSenha.value = false
   formularioAberto.value = false
   ambienteAcessos.value = null
   autenticacao.usuario = null
@@ -105,6 +108,7 @@ onMounted(carregarAmbientes)
         <MarcaStocka />
         <div class="conta">
           <span v-if="autenticacao.usuario" class="nome-conta">{{ autenticacao.usuario.nome }}</span>
+          <button class="botao-secundario" :disabled="saindo" @click="sucesso = ''; alterandoSenha = true">Alterar senha</button>
           <button class="botao-secundario" :disabled="saindo" @click="sair">{{ saindo ? 'Saindo…' : 'Sair' }}</button>
         </div>
       </div>
@@ -158,13 +162,14 @@ onMounted(carregarAmbientes)
     </main>
     <AmbienteFormulario v-if="formularioAberto && administrador" :ambiente="ambienteEditando" @fechar="formularioAberto = false" @salvo="ambienteSalvo" @sessao-expirada="sessaoExpirada" />
     <AmbienteAcessos v-if="ambienteAcessos && administrador" :ambiente="ambienteAcessos" @fechar="ambienteAcessos = null" @salvo="acessosSalvos" @sessao-expirada="sessaoExpirada" />
+    <AlterarSenha v-if="alterandoSenha" @fechar="alterandoSenha = false" @salvo="alterandoSenha = false; sucesso = 'Senha alterada. Use a nova senha no próximo login.'" @sessao-expirada="sessaoExpirada" />
   </div>
 </template>
 
 <style scoped>
 .cabecalho { border-bottom: 1px solid var(--cor-borda); background: var(--cor-superficie); }
 .cabecalho-conteudo { display: flex; align-items: center; justify-content: space-between; gap: 24px; max-width: 1240px; margin: auto; padding: 22px 32px; }
-.conta { display: flex; align-items: center; gap: 24px; min-width: 0; }
+.conta { display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-width: 0; flex-wrap: wrap; }
 .nome-conta { font-size: 0.9rem; overflow-wrap: anywhere; color: var(--cor-texto-secundario); }
 .hub { max-width: 1240px; margin: auto; padding: 48px 32px 72px; }
 .hub-apresentacao { margin-bottom: 32px; }

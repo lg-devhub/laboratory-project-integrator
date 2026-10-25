@@ -24,8 +24,14 @@ public class ApiErros {
     @ExceptionHandler(SQLException.class)
     public ResponseEntity<?> bancoIndisponivel(SQLException erro) {
         if ("23505".equals(erro.getSQLState())) {
+            String mensagem="Ja existe um registro com esse identificador.";
+            if (erro instanceof org.postgresql.util.PSQLException pg && pg.getServerErrorMessage()!=null) {
+                String restricao=pg.getServerErrorMessage().getConstraint();
+                if ("ambientes_nome_unico".equals(restricao)) mensagem="Ja existe um ambiente com esse nome.";
+                if ("itens_patrimonio_unico".equals(restricao)) mensagem="Ja existe um equipamento com esse patrimonio, inclusive entre os registros excluidos.";
+            }
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("mensagem", "Ja existe um ambiente com esse nome."));
+                    .body(Map.of("mensagem", mensagem));
         }
         System.err.println("Falha de banco na API. SQLState: " + erro.getSQLState());
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)

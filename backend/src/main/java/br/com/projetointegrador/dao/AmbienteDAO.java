@@ -4,6 +4,7 @@ import br.com.projetointegrador.database.Connect;
 import br.com.projetointegrador.model.Ambiente;
 import br.com.projetointegrador.model.AmbienteDados;
 import br.com.projetointegrador.model.AcessoAmbiente;
+import br.com.projetointegrador.model.SetorOpcao;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -12,6 +13,36 @@ import java.util.List;
 import java.util.Optional;
 
 public class AmbienteDAO {
+    public List<SetorOpcao> listarSetoresResponsaveis() throws SQLException {
+        String sql="SELECT id,nome FROM public.ambientes WHERE ativo AND tipo='SETOR' ORDER BY lower(nome),id";
+        try (var connection=Connect.conexao(); var statement=connection.prepareStatement(sql); var result=statement.executeQuery()) {
+            List<SetorOpcao> lista=new ArrayList<>();
+            while (result.next()) lista.add(new SetorOpcao(result.getLong(1),result.getString(2)));
+            return lista;
+        }
+    }
+
+    public Optional<Ambiente> buscarAutorizado(long usuarioId, long ambienteId) throws SQLException {
+        try (var connection = Connect.conexao()) {
+            return buscarAutorizado(connection, usuarioId, ambienteId);
+        }
+    }
+
+    // A escrita de itens reutiliza esta verificacao dentro da sua transacao.
+    public Optional<Ambiente> buscarAutorizado(java.sql.Connection connection, long usuarioId, long ambienteId) throws SQLException {
+        String sql = """
+                SELECT a.* FROM public.usuarios u CROSS JOIN public.ambientes a
+                WHERE u.id=? AND u.ativo AND a.id=? AND a.ativo
+                  AND (u.perfil='ADMINISTRADOR' OR EXISTS (
+                    SELECT 1 FROM public.usuario_ambiente ua WHERE ua.usuario_id=u.id AND ua.ambiente_id=a.id
+                  )) FOR SHARE OF u,a
+                """;
+        try (var statement = connection.prepareStatement(sql)) {
+            statement.setLong(1,usuarioId); statement.setLong(2,ambienteId);
+            try (var result = statement.executeQuery()) { return result.next() ? Optional.of(ler(result)) : Optional.empty(); }
+        }
+    }
+
     private Ambiente ler(ResultSet result) throws SQLException {
         return new Ambiente(result.getLong("id"), result.getString("nome"), result.getString("tipo"),
                 result.getString("descricao"), result.getString("cor"));

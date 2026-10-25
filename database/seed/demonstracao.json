@@ -1,0 +1,150 @@
+{
+  "ambientes": [
+    {
+      "chave": "producao",
+      "nome": "DEMO - Produção",
+      "tipo": "SETOR",
+      "cor": "TERRACOTA"
+    },
+    {
+      "chave": "manutencao",
+      "nome": "DEMO - Manutenção",
+      "tipo": "SETOR",
+      "cor": "VERDE"
+    },
+    {
+      "chave": "ferramentas",
+      "nome": "DEMO - Sala de ferramentas",
+      "tipo": "SALA",
+      "cor": "AZUL"
+    },
+    {
+      "chave": "inspecao",
+      "nome": "DEMO - Sala de inspeção",
+      "tipo": "SALA",
+      "cor": "VIOLETA"
+    }
+  ],
+  "itens": [
+    {
+      "ambiente": "producao",
+      "nome": "DEMO - Furadeira de bancada",
+      "categoria": "Máquinas",
+      "status": "ATIVO",
+      "quantidade": 1,
+      "numeroPatrimonio": "DEMO-PAT-001",
+      "responsavel": "producao",
+      "localizacao": "Bancada 1"
+    },
+    {
+      "ambiente": "producao",
+      "nome": "DEMO - Compressor de ar",
+      "categoria": "Máquinas",
+      "status": "INATIVO",
+      "quantidade": 1,
+      "numeroPatrimonio": "DEMO-PAT-002",
+      "responsavel": "producao",
+      "localizacao": "Área de apoio"
+    },
+    {
+      "ambiente": "producao",
+      "nome": "DEMO - Parafusos M8",
+      "categoria": "Fixadores",
+      "status": "ATIVO",
+      "quantidade": 120,
+      "numeroPatrimonio": null,
+      "responsavel": null,
+      "localizacao": "Armário A"
+    },
+    {
+      "ambiente": "manutencao",
+      "nome": "DEMO - Estação de solda",
+      "categoria": "Eletrônica",
+      "status": "EM_MANUTENCAO",
+      "quantidade": 1,
+      "numeroPatrimonio": "DEMO-PAT-003",
+      "responsavel": "manutencao",
+      "localizacao": "Bancada 2"
+    },
+    {
+      "ambiente": "manutencao",
+      "nome": "DEMO - Multímetro digital",
+      "categoria": "Instrumentos",
+      "status": "ATIVO",
+      "quantidade": 1,
+      "numeroPatrimonio": "DEMO-PAT-004",
+      "responsavel": "manutencao",
+      "localizacao": "Armário de instrumentos"
+    },
+    {
+      "ambiente": "manutencao",
+      "nome": "DEMO - Frascos de lubrificante",
+      "categoria": "Consumíveis",
+      "status": "ATIVO",
+      "quantidade": 8,
+      "numeroPatrimonio": null,
+      "responsavel": null,
+      "localizacao": "Prateleira B"
+    },
+    {
+      "ambiente": "ferramentas",
+      "nome": "DEMO - Esmerilhadeira",
+      "categoria": "Ferramentas",
+      "status": "EM_MANUTENCAO",
+      "quantidade": 1,
+      "numeroPatrimonio": "DEMO-PAT-005",
+      "responsavel": "producao",
+      "localizacao": "Bancada lateral"
+    },
+    {
+      "ambiente": "ferramentas",
+      "nome": "DEMO - Furadeira portátil",
+      "categoria": "Ferramentas",
+      "status": "ATIVO",
+      "quantidade": 1,
+      "numeroPatrimonio": "DEMO-PAT-006",
+      "responsavel": "manutencao",
+      "localizacao": "Armário 2"
+    },
+    {
+      "ambiente": "ferramentas",
+      "nome": "DEMO - Chaves combinadas",
+      "categoria": "Ferramentas",
+      "status": "ATIVO",
+      "quantidade": 16,
+      "numeroPatrimonio": null,
+      "responsavel": null,
+      "localizacao": "Painel de ferramentas"
+    },
+    {
+      "ambiente": "inspecao",
+      "nome": "DEMO - Paquímetro digital",
+      "categoria": "Metrologia",
+      "status": "ATIVO",
+      "quantidade": 1,
+      "numeroPatrimonio": "DEMO-PAT-007",
+      "responsavel": "producao",
+      "localizacao": "Bancada de medição"
+    },
+    {
+      "ambiente": "inspecao",
+      "nome": "DEMO - Balança de bancada",
+      "categoria": "Metrologia",
+      "status": "INATIVO",
+      "quantidade": 1,
+      "numeroPatrimonio": "DEMO-PAT-008",
+      "responsavel": "producao",
+      "localizacao": "Mesa de inspeção"
+    },
+    {
+      "ambiente": "inspecao",
+      "nome": "DEMO - Pasta de fichas de inspeção",
+      "categoria": "Documentação",
+      "status": "ATIVO",
+      "quantidade": 1,
+      "numeroPatrimonio": null,
+      "responsavel": null,
+      "localizacao": "Armário de registros"
+    }
+  ]
+}

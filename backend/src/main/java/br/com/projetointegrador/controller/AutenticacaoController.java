@@ -19,6 +19,19 @@ public class AutenticacaoController {
     private final SessaoService sessoes = new SessaoService();
 
     public record LoginRequest(String login, String senha) { }
+    public record AlteracaoSenha(String senhaAtual, String novaSenha, String confirmacao) { }
+
+    @PutMapping(value = "/senha", consumes = "application/json")
+    public ResponseEntity<?> alterarSenha(@RequestBody(required = false) AlteracaoSenha dados, HttpServletRequest request)
+            throws SQLException {
+        var usuario = sessoes.usuarioAtual(request);
+        if (usuario.isEmpty()) return naoAutenticado();
+        if (dados == null) throw new IllegalArgumentException("Informe os dados para alterar a senha.");
+        if (!autenticacao.alterarSenha(usuario.get().id(), dados.senhaAtual(), dados.novaSenha(), dados.confirmacao()))
+            return ResponseEntity.badRequest().body(Map.of("mensagem", "Senha atual incorreta ou conta alterada. Confira os dados."));
+        request.changeSessionId();
+        return ResponseEntity.noContent().build();
+    }
 
     @PostMapping(value = "/login", consumes = "application/json")
     public ResponseEntity<?> login(@RequestBody LoginRequest dados, HttpServletRequest request)

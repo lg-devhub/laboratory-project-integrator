@@ -2,13 +2,14 @@
 
 Projeto acadêmico com frontend Vue, API Java e PostgreSQL local.
 O fluxo disponível é login e hub com ambientes autorizados. Administradores podem cadastrar, editar e gerenciar acessos aos ambientes.
+Cada ambiente oferece inventário com listagem, pesquisa, cadastro, foto e consulta de auditoria.
 
 ## Organização
 
 | Pasta ou arquivo | Responsabilidade |
 |---|---|
-| frontend/ | Login e hub Industrial integrados à API, com pesquisa de ambientes. |
-| backend/ | API Java: autenticação, sessão e gestão de ambientes/acessos. |
+| frontend/ | Login, hub e inventário com identidade Industrial, integrados à API. |
+| backend/ | API Java: autenticação, ambientes/acessos, cadastro e consulta do inventário. |
 | database/ | Estrutura SQL, dados fictícios, consultas, testes e conexão do pgAdmin. |
 | docs/ | Guias atuais do projeto e modelo do banco. |
 | compose.yaml | Execução local do PostgreSQL e do pgAdmin pelo Docker. |
@@ -43,11 +44,13 @@ Para visualizar as tabelas, consulte [o guia do pgAdmin](docs/pgadmin.md).
 | Comando na raiz | Função |
 |---|---|
 | .\Iniciar-Banco.ps1 | Iniciar PostgreSQL e pgAdmin. |
-| .\Atualizar-Banco.ps1 | Aplicar V002 no banco existente sem apagar dados. |
+| .\Atualizar-Banco.ps1 | Aplicar V002–V004 no banco existente sem apagar dados. |
 | .\Parar-Banco.ps1 | Parar os dois serviços preservando seus dados. |
 | .\Testar-Banco.ps1 | Verificar as restrições e consultas SQL do banco local. |
 | .\Iniciar-API.ps1 | Iniciar a API Java. |
+| .\Parar-API.ps1 | Parar somente a API Java deste projeto, inclusive se iniciada em segundo plano. |
 | .\Testar-Backend.ps1 | Executar os testes locais de credenciais e da API. |
+| .\Testar-Inventario.ps1 | Testar inventário e auditoria em banco temporário exclusivo. |
 
 Os testes precisam do banco iniciado. Os testes HTTP criam e encerram sua própria
 API em porta livre; não é necessário iniciar outra API manualmente para testá-los.
@@ -55,8 +58,10 @@ API em porta livre; não é necessário iniciar outra API manualmente para test�
 ## Estado atual
 
 - O banco contém usuários, ambientes e atribuições entre eles.
+- O inventário contém itens e auditoria automática, com foto opcional e responsabilidade separada da localização.
 - A API oferece login, consulta da conta, logout, listagem, cadastro e edição de ambientes e gerenciamento de atribuições.
 - A senha é conferida com BCrypt; a sessão usa cookie HttpOnly.
+- Ambos os perfis podem alterar a própria senha no hub, informando a senha atual e respeitando RF03/RN06. Veja [o guia](docs/alteracao-senha.md).
 - O login Vue está integrado à API, com identidade Industrial, recuperação da sessão e saída.
 - O hub lista salas e setores autorizados e permite pesquisar por nome, tipo ou descrição.
 - Administradores cadastram/editam ambientes, escolhem sua cor e atribuem/revogam acessos de usuários. A API verifica o perfil em cada ação.
@@ -73,7 +78,15 @@ A ERS revisada continua sendo a referência de requisitos e ainda precisa ser
 incluída no repositório na versão aprovada pelo grupo.
 
 O login Industrial já está integrado à API. Consulte [o guia do frontend](docs/frontend.md).
-A base do hub está funcional. O conteúdo interno dos ambientes e os módulos de itens e OS serão desenvolvidos em incrementos posteriores.
+A base do hub e o primeiro inventário estão funcionais: abra um ambiente para listar,
+pesquisar, cadastrar e editar itens/status, consultar foto e auditoria. Localização e setor responsável
+são distintos. Veja [o guia do inventário](docs/inventario.md) e o registro de
+[decisões e próximos passos](docs/decisoes-e-proximos-passos.md). Exclusão,
+movimentação, OS e manutenção seguem para incrementos posteriores.
 
 As pastas target, node_modules e dist, quando presentes, são geradas pelas
 ferramentas e ficam fora do Git. Não representam código que o grupo precisa manter.
+
+Para acrescentar quatro ambientes DEMO e 12 itens fictícios ao banco local, com a API
+ativa, execute .\Popular-Banco.ps1 na raiz. Reexecução não duplica os exemplos.
+Veja [Edição e demonstração](docs/edicao-e-demonstracao.md) para funcionamento e limites.

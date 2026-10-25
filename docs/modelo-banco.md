@@ -1,4 +1,4 @@
-# Primeiro incremento do banco STOCKA
+# Modelo do banco STOCKA
 
 Este modelo ja acompanha o SQL implementado. O banco completo sera construido
 em incrementos, sem alterar a instancia Supabase do grupo.
@@ -11,6 +11,10 @@ PK identifica uma linha. FK referencia uma linha de outra tabela.
 erDiagram
     usuarios ||--o{ usuario_ambiente : recebe
     ambientes ||--o{ usuario_ambiente : permite
+    ambientes ||--o{ itens : localiza
+    ambientes |o--o{ itens : responde_por_equipamentos
+    itens ||--o{ item_historico : registra
+    usuarios ||--o{ item_historico : autoria
 ```
 
 Um usuario pode ter zero ou varios ambientes, e um ambiente pode ter zero ou varios
@@ -76,10 +80,9 @@ validar a senha minima da RN06 e impedir desativacao ou rebaixamento do ultimo
 administrador. Desativacao tambem devera bloquear requisicoes de sessoes existentes.
 Usuarios desativados nao sao apagados. A reativacao nao foi implementada como funcionalidade.
 
-Itens, OS, manutencoes, movimentacoes e auditoria ainda nao possuem tabelas neste
-incremento. Portanto, as regras sobre seus vinculos nao estao implementadas.
-Quando esses modulos forem adicionados, a desativacao de ambientes tambem devera
-verificar localizacao e responsabilidade antes de salvar a alteracao.
+Itens e auditoria agora possuem tabelas na V003. OS, manutencoes e movimentacoes
+ainda nao foram implementadas. A retirada de ambientes permanece pendente e devera
+verificar tanto a localizacao dos itens quanto a responsabilidade pelos equipamentos.
 
 
 ## Complemento: identidade visual dos ambientes
@@ -94,3 +97,39 @@ O DAO agora também cadastra/edita ambientes e substitui atribuições por ambie
 em uma transação. A API exige administrador ativo para essas ações. Ainda não há
 retirada de ambiente; suas dependências de inventário e responsabilidade serão
 implementadas junto dos módulos correspondentes para cumprir RF13/RN05.
+
+## V003 Inventário e auditoria
+
+| Tabela/campo | Tipo | Papel |
+|---|---|---|
+| itens.id | bigint identity | PK do cadastro único. |
+| itens.ambiente_id | bigint NOT NULL | FK para ambientes.id, localização atual. |
+| itens.setor_responsavel_id | bigint opcional | FK para ambientes.id; obrigatório para equipamentos e validado como SETOR ativo. |
+| itens.nome/categoria | varchar(120) | Dados obrigatórios. Categoria em texto livre nesta etapa. |
+| itens.forma_registro/equipamento | varchar(12)/boolean | Individual ou por quantidade; equipamento somente individual. |
+| itens.quantidade/status | integer/varchar(16) | Quantidade positiva, individual igual a 1; três status do ERS. |
+| itens.numero_patrimonio | varchar(120) | Obrigatório para equipamento, único mesmo após exclusão lógica futura. |
+| itens.descricao/localizacao | text/varchar(300) | Dados opcionais. |
+| itens.foto/foto_tipo | bytea/varchar(10) | Foto opcional persistida no banco. |
+| itens.criado_em/excluido_em | timestamptz | Criação automática; exclusão lógica reservada, sem operação disponível ainda. |
+| item_historico.id | bigint identity | PK de cada evento. |
+| item_historico.item_id | bigint NOT NULL | FK restritiva para itens.id. |
+| item_historico.usuario_id | bigint NOT NULL | FK restritiva para usuarios.id, autor real da sessão. |
+| item_historico.acao/data_hora | varchar(30)/timestamptz | Ação e data do servidor; CADASTRO já implementado. |
+
+Não há cascata que apague auditoria. Triggers bloqueiam alteração/remoção do histórico
+e garantem que cadastrar um item também registra sua auditoria. Nenhum item é inserido
+pelo seed de trabalho. Veja [o guia do inventário](inventario.md) para transações,
+permissões, limites técnicos e testes, e [as decisões](decisoes-e-proximos-passos.md)
+para a separação entre localização e responsabilidade.
+
+## V004 Edição de itens
+
+| Campo | Tipo | Papel |
+|---|---|---|
+| itens.versao | bigint positivo | Versão incrementada em alteração efetiva; detecta edição concorrente. |
+| item_historico.status_anterior | varchar(16), opcional | Status anterior nas novas alterações de status. |
+| item_historico.status_novo | varchar(16), opcional | Status posterior nas novas alterações de status. |
+
+Entradas antigas permanecem válidas sem os novos campos. A atualização e sua auditoria
+são atômicas. Detalhes em [Edição e demonstração](edicao-e-demonstracao.md).

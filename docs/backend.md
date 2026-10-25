@@ -16,6 +16,17 @@ A API atende em http://localhost:8080 e continua executando nesse terminal.
 Ctrl+C encerra a API. PostgreSQL e pgAdmin executam no Docker; o Java executa
 separadamente no Windows. Abrir a raiz da API no navegador não abre uma tela.
 
+Iniciar-API.ps1 verifica a porta antes de executar Maven e avisa quando já existe
+um serviço atendendo; não tenta iniciar uma segunda instância. Esse aviso não
+confirma que qualquer serviço na porta seja o STOCKA.
+
+Para parar uma API iniciada em segundo plano, execute .\Parar-API.ps1 na raiz.
+O script verifica a porta, a classe Java e o processo Maven da pasta deste projeto
+antes de encerrar. Não encerra outras aplicações Java nem para Docker/Vue. Para
+reiniciar, execute Parar-API.ps1 e depois Iniciar-API.ps1. As sessões anteriores
+expiram ao reiniciar; entre novamente no site. Se a API foi iniciada por uma IDE,
+use o botão de parar da própria IDE quando o script não reconhecer a origem.
+
 Para testar, execute na raiz:
 
 ```powershell
@@ -234,10 +245,11 @@ cria um ambiente temporário com nome Teste-hub- seguido de UUID, atribui ao ope
 revoga somente essa atribuição e desativa somente esse ambiente. A limpeza em finally
 remove o ambiente e suas atribuições temporárias. As salas e atribuições do seed
 permanecem intactas. Interrupção abrupta pode impedir essa limpeza; a sequência de
-ids avança normalmente. A suíte completa tem 35 testes locais.
+ids avança normalmente. As suítes existentes têm 35 testes locais; o inventário
+acrescenta 19 testes de inventário e quatro de senha em banco temporário exclusivo, totalizando 58 verificações.
 
-O hub também permite gestão administrativa de cadastros e acessos. Uma futura rota para abrir seu conteúdo
-também deverá validar autorização pelo id do ambiente; conhecer um id não concede acesso.
+O hub também permite gestão administrativa de cadastros e acessos. A rota de inventário
+também valida autorização pelo id do ambiente; conhecer um id não concede acesso.
 
 ## Cadastro, edição e acessos de ambientes
 
@@ -286,3 +298,17 @@ edição. RF13 ainda não está implementado: a retirada exige as verificações
 localização, responsabilidade e histórico previstas na RN05. A divergência do
 subfluxo A2 de RF13 (menciona somente itens ativos) com RN05 permanece como ponto
 de revisão documental pelo grupo; o arquivo ERS não foi editado nesta etapa.
+
+## Inventário e auditoria
+
+O backend também oferece listagem/cadastro de itens, foto e consulta de histórico
+por ambiente autorizado. ItemDados valida os campos e ItemDAO revalida acesso
+dentro da transação de cadastro. V003 associa item e auditoria automaticamente,
+preservando autoria e registros imutáveis. Patrimônio duplicado retorna 409.
+As rotas, regras, limites e testes isolados estão no [guia do inventário](inventario.md).
+As suítes somam 35 verificações existentes, 19 de inventário e quatro de alteração de senha. Testar-Backend.ps1
+executa as duas etapas; Testar-Inventario.ps1 executa somente o banco temporário.
+
+A edição de itens usa V004, controle de versão e transação com auditoria.
+Os scripts de execução/teste limitam a memória das JVMs. Consulte
+[Edição e demonstração](edicao-e-demonstracao.md) para contratos e escopo.

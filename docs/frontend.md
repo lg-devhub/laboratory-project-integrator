@@ -35,25 +35,30 @@ a compilação da interface. O formulário já permite entrar com as contas loca
 ```text
 src/
 ├── assets/
-│   ├── images/
 │   └── styles/main.css
 ├── components/
+│   ├── AlterarSenha.vue
 │   ├── MarcaStocka.vue
 │   ├── AmbienteCard.vue
 │   ├── AmbienteFormulario.vue
-│   └── AmbienteAcessos.vue
+│   ├── AmbienteAcessos.vue
+│   ├── ItemFormulario.vue
+│   └── ItemDetalhes.vue
 ├── views/
 │   ├── LoginView.vue
-│   └── AmbientesView.vue
+│   ├── AmbientesView.vue
+│   └── InventarioView.vue
 ├── router/index.ts
 ├── services/
 │   ├── api.ts
 │   ├── autenticacao.ts
-│   └── ambientes.ts
+│   ├── ambientes.ts
+│   └── itens.ts
 ├── stores/autenticacao.ts
 ├── types/
 │   ├── usuario.ts
-│   └── ambiente.ts
+│   ├── ambiente.ts
+│   └── item.ts
 ├── App.vue
 └── main.ts
 ```
@@ -72,7 +77,7 @@ src/
 | assets | Imagens importadas pelo Vue e estilos da interface. |
 
 MarcaStocka é usado no login e no cabeçalho. AmbienteCard representa cada sala ou setor.
-assets/images permanece reservada para imagens futuras; .gitkeep mantém essa pasta no Git. Não é preciso criar componentes
+A pasta vazia assets/images foi removida; fotos dos itens ficam no banco. Não é preciso criar componentes
 antes de identificarmos sua utilidade. public continua recebendo arquivos servidos
 diretamente, como o favicon. package-lock.json registra as versões de dependências;
 node_modules e dist são gerados pelas ferramentas e ficam fora do Git.
@@ -172,9 +177,10 @@ sem ambientes disponíveis e pesquisa sem resultado com opção Limpar pesquisa.
 Uma resposta 401 limpa a conta local e encaminha ao login. Um erro 503 não é
 tratado como lista vazia; a pessoa pode tentar novamente.
 
-Os cartões têm ações de edição e acessos para administradores. Ainda não há página
-de conteúdo interno, contagem de itens, status operacional, gráfico ou abertura de OS.
-Não foram acrescentadas ações sem destino ou dados inventados para preencher a tela.
+Os cartões têm ações de edição e acessos para administradores e Abrir inventário
+para as contas autorizadas. A página interna lista, pesquisa e cadastra itens,
+com detalhes, foto e auditoria. Não há contagem de itens nos cartões, gráficos
+ou abertura de OS nesta etapa. Veja [o guia do inventário](inventario.md).
 
 Validação em navegador: administrador com dois ambientes de exemplo, operador
 com um, conta sem atribuições com zero, pesquisa, carregamento, repetição após erro,
@@ -213,3 +219,13 @@ cadastro/edição, nome duplicado sem fechar formulário, persistência após re
 atribuição e revogação verificadas em uma segunda sessão, conta comum sem botões
 administrativos, expiração de sessão, Escape e restauração de foco. Layout conferido
 em 1440, 390 e 320 pixels. O ambiente temporário do navegador foi removido ao final.
+
+## Inventário após o hub
+
+/ambientes/:ambienteId usa InventarioView.vue, protegida pelo router e pela API.
+AmbienteCard oferece links para o inventário. ItemFormulario.vue concentra cadastro;
+ItemDetalhes.vue mostra dados, foto e histórico. services/itens.ts mantém as chamadas
+HTTP e types/item.ts seus contratos. Os dados da lista ficam na view, sem nova store.
+Pesquisa abrange nome, categoria, patrimônio, identificação e localização; filtro de
+status é uma conveniência adicional. A contagem representa registros, não soma de
+unidades de naturezas diferentes. Detalhes completos e limites estão em [Inventário](inventario.md).
