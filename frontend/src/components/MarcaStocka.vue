@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { ScanLine } from '@lucide/vue'
+
+defineProps<{
+  tema?: 'padrao' | 'claro'
+}>()
 </script>
 
 <template>
-  <div class="marca-stocka" aria-label="STOCKA">
+  <div class="marca-stocka" :class="{ 'tema-claro': tema === 'claro' }" aria-label="STOCKA">
     <span class="marca-simbolo" aria-hidden="true"><ScanLine :size="24" :stroke-width="1.8" /></span>
     <span>STOCKA</span>
   </div>
@@ -18,6 +22,10 @@ import { ScanLine } from '@lucide/vue'
   font-size: 1.35rem;
   font-weight: 700;
   letter-spacing: 0.1em;
+}
+
+.marca-stocka.tema-claro {
+  color: #ffffff;
 }
 
 .marca-simbolo {
